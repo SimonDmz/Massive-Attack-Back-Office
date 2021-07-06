@@ -1,11 +1,11 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: sabiane-data
+  name: sabiane-data-api
 spec:
   ports:
     - name: http
       targetPort: 8080
       port: 8080
   selector:
-    app: sabiane-data
+    app: sabiane-data-api
