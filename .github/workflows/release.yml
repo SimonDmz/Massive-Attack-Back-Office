@@ -18,11 +18,18 @@ jobs:
           java-version: 11
       - name: Build with Maven
         run: mvn install --file pom.xml
-      - name: Upload jar
+      - name: Get Glow Root
+        run: |
+          curl -L https://github.com/glowroot/glowroot/releases/download/v0.13.6/glowroot-0.13.6-dist.zip -o glowroot.zip
+          unzip glowroot.zip
+          rm -rf glowroot.zip
+      - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: jar
-          path: target/sabianedata.jar
+          name: artifacts
+          path: |
+            target/sabianedata.jar
+            glowroot
   release:
     needs: build
     runs-on: ubuntu-latest
@@ -48,7 +55,7 @@ jobs:
         id: download
         uses: actions/download-artifact@v2
         with:
-          name: jar
+          name: artifacts
           path: ./
       - run: ls .
       - name: Upload Release Asset
@@ -58,7 +65,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.release_snapshot.outputs.upload_url }}
-          asset_path: sabianedata.jar
+          asset_path: target/sabianedata.jar
           asset_name: sabianedata.jar
           asset_content_type: application/java-archive
   docker:
@@ -70,8 +77,8 @@ jobs:
         id: download
         uses: actions/download-artifact@v2
         with:
-          name: jar
-          path: target/
+          name: artifacts
+          path: ./
       - name: Get current version
         id: version
         run: echo "::set-output name=prop::$(mvn -f pom.xml help:evaluate -Dexpression=project.version -q -DforceStdout)"
