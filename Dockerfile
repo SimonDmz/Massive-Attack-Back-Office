@@ -4,4 +4,4 @@ ADD ./target/*.jar app.jar
 ADD ./glowroot .
 
 
-ENTRYPOINT ["java","-jar -javaagent:glowroot.jar","app.jar"]
+ENTRYPOINT ["java","-javaagent:glowroot/glowroot.jar","-jar","app.jar"]
