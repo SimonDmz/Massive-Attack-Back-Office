@@ -22,12 +22,6 @@ public class BeanConfig {
     @Autowired
     QueenProperties queenProperties;
 
-    @Value("${proxy.host:#{null}}")
-    private String proxyHost;
-
-    @Value("${proxy.port:0}")
-    private int proxyPort;
-
     @Bean
     public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurer() {
@@ -69,15 +63,7 @@ public class BeanConfig {
 
 
     private WebClient getWebClientFromEnum(Plateform plateform) {
-        HttpClient httpClient =
-                HttpClient.create()
-                        .proxy(proxy -> proxy.type(ProxyProvider.Proxy.HTTP)
-                                .host(proxyHost)
-                                .port(proxyPort));
-        ReactorClientHttpConnector connector = new ReactorClientHttpConnector(httpClient);
-
         return WebClient.builder()
-                .clientConnector(connector)
                 .baseUrl(queenProperties.getHostFromEnum(plateform))
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .build();
