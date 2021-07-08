@@ -11,12 +11,15 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
@@ -33,35 +36,72 @@ public class QueenApiService {
     @Autowired
     RestTemplate restTemplate;
 
+    @Autowired
+    @Qualifier("webClientDV")
+    private WebClient webClientDV;
 
-    public ResponseEntity<?> postCampaignToApi(HttpServletRequest request, CampaignDto campaignDto, Plateform plateform) {
+    @Autowired
+    @Qualifier("webClientQF1")
+    private WebClient webClientQF1;
+
+    @Autowired
+    @Qualifier("webClientQF2")
+    private WebClient webClientQF2;
+
+    @Autowired
+    @Qualifier("webClientQF3")
+    private WebClient webClientQF3;
+
+    @Autowired
+    @Qualifier("webClientCLOUD")
+    private WebClient webClientCLOUD;
+
+
+    public void postCampaignToApi(HttpServletRequest request, CampaignDto campaignDto, Plateform plateform) {
         LOGGER.info("Creating Campaign"+campaignDto.getId());
-        final String apiUri = queenProperties.getHostFromEnum(plateform) +"/api/campaigns";
-        HttpHeaders httpHeaders = createSimpleHeadersAuth(request);
-        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-        return restTemplate.exchange(apiUri, HttpMethod.POST, new HttpEntity<>(campaignDto, httpHeaders), String.class);
+        WebClient webClient = getWebClientFromEnum(plateform);
+        Mono<?> requestSend = webClient.post()
+                .uri("/api/campaigns")
+                .header("Authorization",getAuthHeader(request))
+                .body(Mono.just(campaignDto), CampaignDto.class)
+                .retrieve()
+                .bodyToMono(Void.class);
+        requestSend.subscribe();
     }
-    public ResponseEntity<?> postUeToApi(HttpServletRequest request, SurveyUnitDto surveyUnitDto, CampaignDto campaignDto, Plateform plateform) throws JsonProcessingException {
+
+    public void postUeToApi(HttpServletRequest request, SurveyUnitDto surveyUnitDto, CampaignDto campaignDto, Plateform plateform) throws JsonProcessingException {
         LOGGER.info("Create SurveyUnit "+surveyUnitDto.getId());
         String idCampaign = campaignDto.getId();
-        final String apiUri = queenProperties.getHostFromEnum(plateform) +"/api/campaign/"+idCampaign+"/survey-unit";
-        HttpHeaders httpHeaders = createSimpleHeadersAuth(request);
-        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-        return restTemplate.exchange(apiUri, HttpMethod.POST, new HttpEntity<>(surveyUnitDto, httpHeaders), String.class);
+        WebClient webClient = getWebClientFromEnum(plateform);
+        Mono<?> requestSend = webClient.post()
+                .uri("/api/campaign/"+idCampaign+"/survey-unit")
+                .header("Authorization",getAuthHeader(request))
+                .body(Mono.just(surveyUnitDto), SurveyUnitDto.class)
+                .retrieve()
+                .bodyToMono(Void.class);
+        requestSend.subscribe();
     }
-    public ResponseEntity<?> postNomenclaturesToApi(HttpServletRequest request, NomenclatureDto nomenclatureDto, Plateform plateform) {
+    public void postNomenclaturesToApi(HttpServletRequest request, NomenclatureDto nomenclatureDto, Plateform plateform) {
         LOGGER.info("Create nomenclature "+nomenclatureDto.getId());
-        final String apiUri = queenProperties.getHostFromEnum(plateform) +"/api/nomenclature";
-        HttpHeaders httpHeaders = createSimpleHeadersAuth(request);
-        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-        return restTemplate.exchange(apiUri, HttpMethod.POST, new HttpEntity<>(nomenclatureDto, httpHeaders), String.class);
+        WebClient webClient = getWebClientFromEnum(plateform);
+        Mono<?> requestSend = webClient.post()
+                .uri("/api/nomenclature")
+                .header("Authorization",getAuthHeader(request))
+                .body(Mono.just(nomenclatureDto), NomenclatureDto.class)
+                .retrieve()
+                .bodyToMono(Void.class);
+        requestSend.subscribe();
     }
-    public ResponseEntity<?> postQuestionnaireModelToApi(HttpServletRequest request, QuestionnaireModelDto questionnaireModelDto, Plateform plateform) {
+    public void postQuestionnaireModelToApi(HttpServletRequest request, QuestionnaireModelDto questionnaireModelDto, Plateform plateform) {
         LOGGER.info("Create Questionnaire "+questionnaireModelDto.getIdQuestionnaireModel());
-        final String apiUri = queenProperties.getHostFromEnum(plateform) +"/api/questionnaire-models";
-        HttpHeaders httpHeaders = createSimpleHeadersAuth(request);
-        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-        return restTemplate.exchange(apiUri, HttpMethod.POST, new HttpEntity<>(questionnaireModelDto, httpHeaders), String.class);
+        WebClient webClient = getWebClientFromEnum(plateform);
+        Mono<?> requestSend = webClient.post()
+                .uri("/api/questionnaire-models")
+                .header("Authorization",getAuthHeader(request))
+                .body(Mono.just(questionnaireModelDto), QuestionnaireModelDto.class)
+                .retrieve()
+                .bodyToMono(Void.class);
+        requestSend.subscribe();
     }
 
     public ResponseEntity<String> createFullCampaign(HttpServletRequest request, File campaignZip, Plateform plateform) {
@@ -75,11 +115,39 @@ public class QueenApiService {
         return restTemplate.postForEntity(apiUri, requestEntity, String.class);
     }
 
-    public HttpHeaders createSimpleHeadersAuth(HttpServletRequest request){
+    private HttpHeaders createSimpleHeadersAuth(HttpServletRequest request){
         String authTokenHeader = request.getHeader("Authorization");
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
         if (!StringUtils.isBlank(authTokenHeader)) httpHeaders.set("Authorization",authTokenHeader);
         return httpHeaders;
     }
+
+    private String getAuthHeader(HttpServletRequest request){
+        return request.getHeader("Authorization");
+    }
+
+    private WebClient getWebClientFromEnum(Plateform plateform){
+        WebClient webClient=null;
+        switch (plateform){
+            case DV:
+                webClient=webClientDV;
+                break;
+            case QF1:
+                webClient=webClientQF1;
+                break;
+            case QF2:
+                webClient=webClientQF2;
+                break;
+            case QF3:
+                webClient=webClientQF3;
+                break;
+            case CLOUD:
+                webClient=webClientCLOUD;
+                break;
+        }
+        return webClient;
+    }
+
+
 }

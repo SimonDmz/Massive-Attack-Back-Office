@@ -83,7 +83,7 @@ public class QueenApiController {
             suDto.setId(campaign + q);
             LOGGER.info("su id : {}", suDto.getId());
             try{
-                queenApiService.postUeToApi(request, suDto, campaignDto, plateform).getStatusCode();
+                queenApiService.postUeToApi(request, suDto, campaignDto, plateform);
                 reporting.addSuccess(suDto.getId());
                 LOGGER.info("Successfully generated and integrated survey unit with id {} for campaign {}", suDto.getId(), campaign);
             } catch (Exception e) {
@@ -92,6 +92,7 @@ public class QueenApiController {
                 LOGGER.error(e.getMessage());
             }
         });
+        LOGGER.info("Success : {}",reporting.getSuccess().size());
         return ResponseEntity.ok().body(reporting);
     }
 

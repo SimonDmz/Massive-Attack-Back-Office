@@ -6,7 +6,7 @@
 	<groupId>fr.insee</groupId>
 	<artifactId>sabiane-data</artifactId>
 	<packaging>jar</packaging>
-	<version>1.4.11</version>
+	<version>1.4.12</version>
 	<name>Sabiane Data</name>
 
 	<properties>
@@ -52,6 +52,10 @@
 			<artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
 
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-webflux</artifactId>
+		</dependency>
 
 		<!-- swagger -->
 		<dependency>
