@@ -17,6 +17,7 @@ import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -49,6 +50,9 @@ public class QueenApiController {
     private QueenApiService queenApiService;
 
 
+    @Value("${fr.insee.sabianedata.delay.ms}")
+    private long delayMs;
+
     @Operation(summary = "Insertion de données massives d'une campagne pour Queen",
             description = "- **campaign** : nom de la campagne à laquelle seront associées les unités enquêtées générées, \n"
                     + "- **questionnaireId** : nom du modèle de questionnaire auquel seront associées les unités enquêtées générées, \n"
@@ -78,7 +82,15 @@ public class QueenApiController {
         su.setStateData(new StateData());
         su.setDataFile("{}");
 
-        IntStream.range(index, occurrences + index).parallel().forEach(q -> {
+        IntStream.range(index, occurrences + index).parallel()
+                .peek(q -> {
+            try {
+                Thread.sleep(delayMs);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        })
+                .forEach(q -> {
             SurveyUnitDto suDto = new SurveyUnitDto(su);
             suDto.setId(campaign + q);
             LOGGER.info("su id : {}", suDto.getId());
