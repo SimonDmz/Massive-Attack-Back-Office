@@ -66,7 +66,8 @@ public class QueenApiController {
             @RequestParam(value = "questionnaireId") String questionnaireId,
             @RequestParam(value = "occurrences") int occurrences,
             @RequestParam(value = "index") int index,
-            @RequestParam(value = "plateform") Plateform plateform) throws Exception {
+            @RequestParam(value = "plateform") Plateform plateform,
+            @RequestParam(value = "better", defaultValue = "false") boolean better) throws Exception {
 
         LOGGER.info("Trying to generate and integrate {} occurrences for campaign {}", occurrences, campaign);
 
@@ -95,7 +96,7 @@ public class QueenApiController {
             suDto.setId(campaign + q);
             LOGGER.info("su id : {}", suDto.getId());
             try{
-                queenApiService.postUeToApi(request, suDto, campaignDto, plateform);
+                queenApiService.postUeToApi(request, suDto, campaignDto, plateform, better);
                 reporting.addSuccess(suDto.getId());
                 LOGGER.info("Successfully generated and integrated survey unit with id {} for campaign {}", suDto.getId(), campaign);
             } catch (Exception e) {
@@ -173,7 +174,7 @@ public class QueenApiController {
         LOGGER.info("Trying to post " + sus.size() + " survey-units");
         surveyUnitsSuccess = sus.stream().parallel().filter( su -> {
             try {
-                queenApiService.postUeToApi(request, su, campaignDto, plateform);
+                queenApiService.postUeToApi(request, su, campaignDto, plateform,false);
                 return true;
             } catch (Exception e) {
                 LOGGER.error("Error during creation of surveyUnit :" + su.getId());

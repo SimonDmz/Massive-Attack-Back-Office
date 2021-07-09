@@ -71,12 +71,12 @@ public class QueenApiService {
         requestSend.subscribe();
     }
 
-    public void postUeToApi(HttpServletRequest request, SurveyUnitDto surveyUnitDto, CampaignDto campaignDto, Plateform plateform) throws JsonProcessingException {
+    public void postUeToApi(HttpServletRequest request, SurveyUnitDto surveyUnitDto, CampaignDto campaignDto, Plateform plateform, boolean better) throws JsonProcessingException {
         LOGGER.info("Create SurveyUnit "+surveyUnitDto.getId());
         String idCampaign = campaignDto.getId();
         WebClient webClient = getWebClientFromEnum(plateform);
         Mono<?> requestSend = webClient.post()
-                .uri("/api/campaign/"+idCampaign+"/survey-unit")
+                .uri("/api/campaign/"+idCampaign+"/survey-unit"+ (better ?"/better":""))
                 .header("Authorization",getAuthHeader(request))
                 .body(Mono.just(surveyUnitDto), SurveyUnitDto.class)
                 .retrieve()
