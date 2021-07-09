@@ -81,7 +81,7 @@ public class QueenApiService {
                 .body(Mono.just(surveyUnitDto), SurveyUnitDto.class)
                 .retrieve()
                 .bodyToMono(Void.class);
-        requestSend.delayElement(Duration.ofMillis(200));
+        requestSend.delayElement(Duration.ofSeconds(3));
         requestSend.retryWhen(Retry.backoff(3, Duration.ofSeconds(2)).jitter(0.75));
         requestSend.subscribe();
     }
