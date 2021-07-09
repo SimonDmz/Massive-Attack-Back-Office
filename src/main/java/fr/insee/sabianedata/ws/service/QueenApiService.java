@@ -20,9 +20,11 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+import reactor.util.retry.Retry;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
+import java.time.Duration;
 import java.util.Arrays;
 
 @Service
@@ -79,6 +81,8 @@ public class QueenApiService {
                 .body(Mono.just(surveyUnitDto), SurveyUnitDto.class)
                 .retrieve()
                 .bodyToMono(Void.class);
+        requestSend.delayElement(Duration.ofMillis(30));
+        requestSend.retryWhen(Retry.backoff(3, Duration.ofSeconds(2)).jitter(0.75));
         requestSend.subscribe();
     }
     public void postNomenclaturesToApi(HttpServletRequest request, NomenclatureDto nomenclatureDto, Plateform plateform) {
