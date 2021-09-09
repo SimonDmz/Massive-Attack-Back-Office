@@ -1,16 +1,24 @@
 package fr.insee.sabianedata.ws.service;
 
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import fr.insee.sabianedata.ws.model.queen.*;
-import org.apache.commons.io.FileUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import java.io.File;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import fr.insee.sabianedata.ws.model.queen.CampaignDto;
+import fr.insee.sabianedata.ws.model.queen.Nomenclature;
+import fr.insee.sabianedata.ws.model.queen.NomenclatureDto;
+import fr.insee.sabianedata.ws.model.queen.Nomenclatures;
+import fr.insee.sabianedata.ws.model.queen.QuestionnaireModel;
+import fr.insee.sabianedata.ws.model.queen.QuestionnaireModelDto;
+import fr.insee.sabianedata.ws.model.queen.QuestionnaireModels;
+import fr.insee.sabianedata.ws.model.queen.SurveyUnitDto;
+import fr.insee.sabianedata.ws.model.queen.SurveyUnits;
 
 @Service
 public class QueenExtractEntities {
@@ -20,7 +28,7 @@ public class QueenExtractEntities {
 
     public CampaignDto getQueenCampaignFromXMLFile(File file) throws Exception {
         XmlMapper xmlMapper = new XmlMapper();
-        CampaignDto campaign = xmlMapper.readValue(file,CampaignDto.class);
+        CampaignDto campaign = xmlMapper.readValue(file, CampaignDto.class);
         return campaign;
     }
 
@@ -34,9 +42,12 @@ public class QueenExtractEntities {
         File file = queenTransformService.getQueenSurveyUnits(fods);
         XmlMapper xmlMapper = new XmlMapper();
         SurveyUnits surveyUnits = xmlMapper.readValue(file, SurveyUnits.class);
-        List<SurveyUnitDto> surveyUnitsList = surveyUnits.getSurveyUnits().stream().map(s -> new SurveyUnitDto(s,folder)).collect(Collectors.toList());
-
-        return surveyUnitsList!=null ? surveyUnitsList : lists;
+        List<SurveyUnitDto> surveyUnitsList = surveyUnits.getSurveyUnits().stream().map(s -> {
+            SurveyUnitDto suDto = new SurveyUnitDto(s);
+            suDto.extractJsonFromFiles(folder);
+            return suDto;
+        }).collect(Collectors.toList());
+        return surveyUnitsList != null ? surveyUnitsList : lists;
     }
 
     public List<QuestionnaireModel> getQueenQuestionnaireModelsFromFods(File fods, String folder) throws Exception {
@@ -44,12 +55,16 @@ public class QueenExtractEntities {
         File file = queenTransformService.getQueenQuestionnaires(fods);
         XmlMapper xmlMapper = new XmlMapper();
         QuestionnaireModels questionnaireModels = xmlMapper.readValue(file, QuestionnaireModels.class);
-        return questionnaireModels!=null && questionnaireModels.getQuestionnaireModels()!=null ? questionnaireModels.getQuestionnaireModels() : lists;
+        return questionnaireModels != null && questionnaireModels.getQuestionnaireModels() != null
+                ? questionnaireModels.getQuestionnaireModels()
+                : lists;
     }
 
-    public List<QuestionnaireModelDto> getQueenQuestionnaireModelsDtoFromFods(File fods, String folder) throws Exception {
-        List<QuestionnaireModel> questionnaireModels = getQueenQuestionnaireModelsFromFods(fods,folder);
-        List<QuestionnaireModelDto> questionnaireModelDtoList = questionnaireModels.stream().map(q -> new QuestionnaireModelDto(q,folder)).collect(Collectors.toList());
+    public List<QuestionnaireModelDto> getQueenQuestionnaireModelsDtoFromFods(File fods, String folder)
+            throws Exception {
+        List<QuestionnaireModel> questionnaireModels = getQueenQuestionnaireModelsFromFods(fods, folder);
+        List<QuestionnaireModelDto> questionnaireModelDtoList = questionnaireModels.stream()
+                .map(q -> new QuestionnaireModelDto(q, folder)).collect(Collectors.toList());
         return questionnaireModelDtoList;
     }
 
@@ -58,15 +73,15 @@ public class QueenExtractEntities {
         File file = queenTransformService.getQueenNomenclatures(fods);
         XmlMapper xmlMapper = new XmlMapper();
         Nomenclatures nomenclatures = xmlMapper.readValue(file, Nomenclatures.class);
-        return nomenclatures!=null && nomenclatures.getNomenclatures()!=null ? nomenclatures.getNomenclatures() : lists;
+        return nomenclatures != null && nomenclatures.getNomenclatures() != null ? nomenclatures.getNomenclatures()
+                : lists;
     }
 
     public List<NomenclatureDto> getQueenNomenclaturesDtoFromFods(File fods, String folder) throws Exception {
-        List<Nomenclature> nomenclatures = getQueenNomenclatureFromFods(fods,folder);
-        List<NomenclatureDto> nomenclatureDtos = nomenclatures.stream().map(n -> new NomenclatureDto(n,folder)).collect(Collectors.toList());
+        List<Nomenclature> nomenclatures = getQueenNomenclatureFromFods(fods, folder);
+        List<NomenclatureDto> nomenclatureDtos = nomenclatures.stream().map(n -> new NomenclatureDto(n, folder))
+                .collect(Collectors.toList());
         return nomenclatureDtos;
     }
-
-
 
 }

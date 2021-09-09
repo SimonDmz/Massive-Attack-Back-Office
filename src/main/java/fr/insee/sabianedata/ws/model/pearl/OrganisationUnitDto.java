@@ -1,28 +1,29 @@
 package fr.insee.sabianedata.ws.model.pearl;
 
+import java.util.ArrayList;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
-import java.util.ArrayList;
-
-
 @JacksonXmlRootElement(localName = "OrganisationUnit")
 public class OrganisationUnitDto {
 
-    @JacksonXmlProperty(localName="OrganisationUnit")
+    @JacksonXmlProperty(localName = "OrganisationUnit")
+    @JsonProperty("id")
     private String organisationUnit;
-    @JacksonXmlProperty(localName="OrganisationUnitLabel")
+    @JacksonXmlProperty(localName = "OrganisationUnitLabel")
+    @JsonProperty("label")
     private String organisationUnitLabel;
-    @JacksonXmlProperty(localName="Type")
+    @JacksonXmlProperty(localName = "Type")
     private String type;
 
-    @JacksonXmlElementWrapper(localName="Users")
+    @JacksonXmlElementWrapper(localName = "Users")
     private ArrayList<UserDto> users;
 
-    @JacksonXmlElementWrapper(localName="OrganisationUnitRefs")
+    @JacksonXmlElementWrapper(localName = "OrganisationUnitRefs")
     @JacksonXmlProperty(localName = "OrganisationUnitRef")
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private ArrayList<String> organisationUnitRef;
@@ -68,5 +69,11 @@ public class OrganisationUnitDto {
     }
 
     public OrganisationUnitDto() {
+    }
+
+    @Override
+    public String toString() {
+        return "OrganisationUnitDto{" + "organisationUnit='" + organisationUnit + '\'' + ", organisationUnitLabel='"
+                + organisationUnitLabel + '\'' + '}';
     }
 }

@@ -8,25 +8,25 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 @JacksonXmlRootElement(localName = "SurveyUnit")
 public class SurveyUnit {
 
-    @JacksonXmlProperty(localName="Id")
+    @JacksonXmlProperty(localName = "Id")
     @JsonProperty("id")
     private String id;
 
-    @JacksonXmlProperty(localName="QuestionnaireId")
+    @JacksonXmlProperty(localName = "QuestionnaireId")
     private String QuestionnaireId;
 
-    @JacksonXmlProperty(localName="StateData")
+    @JacksonXmlProperty(localName = "StateData")
     private StateData stateData;
 
-    @JacksonXmlProperty(localName="PersonalizationFile")
+    @JacksonXmlProperty(localName = "PersonalizationFile")
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String personalizationFile;
 
-    @JacksonXmlProperty(localName="DataFile")
+    @JacksonXmlProperty(localName = "DataFile")
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String dataFile;
 
-    @JacksonXmlProperty(localName="CommentFile")
+    @JacksonXmlProperty(localName = "CommentFile")
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String commentFile;
 
@@ -80,8 +80,23 @@ public class SurveyUnit {
 
     public SurveyUnit(String id, String questionnaireId, StateData stateData) {
         this.id = id;
-        QuestionnaireId = questionnaireId;
+        this.QuestionnaireId = questionnaireId;
         this.stateData = stateData;
+    }
+
+    public SurveyUnit(String id, String questionnaireId, StateData stateData, String dataFile, String commentFile,
+            String personalizationFile) {
+        this.id = id;
+        this.QuestionnaireId = questionnaireId;
+        this.stateData = stateData;
+        this.dataFile = dataFile;
+        this.commentFile = commentFile;
+        this.personalizationFile = personalizationFile;
+    }
+
+    public SurveyUnit(SurveyUnit su) {
+        this(su.getId(), su.getQuestionnaireId(), su.getStateData(), su.getDataFile(), su.getCommentFile(),
+                su.getPersonalizationFile());
     }
 
     public SurveyUnit() {

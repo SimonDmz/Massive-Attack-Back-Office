@@ -14,6 +14,10 @@
     
     <xsl:variable name="personsSheet" select="//office:spreadsheet/table:table[@table:name='persons']"/>
     
+    <xsl:variable name="statesSheet" select="//office:spreadsheet/table:table[@table:name='states']"/>
+
+    <xsl:variable name="contactAttemptsSheet" select="//office:spreadsheet/table:table[@table:name='contactAttempts']"/>
+
     <xsl:variable name="campaign">
         <xsl:variable name="temp" select="//office:spreadsheet/table:table[@table:name='campaign']"/>
         <xsl:value-of select="upper-case(tools:getColumn(tools:get-full-row($temp/table:table-row[2]),1))"/>
@@ -21,10 +25,19 @@
     
     <xsl:function name="tools:get-persons">
         <xsl:param name="idSurveyUnit"/>
-        <xsl:variable name="sheet" select="$personsSheet"/>
-        <xsl:copy-of select="$sheet/table:table-row[normalize-space(table:table-cell[1])=$idSurveyUnit]"></xsl:copy-of>
+        <xsl:copy-of select="$personsSheet/table:table-row[normalize-space(table:table-cell[1])=$idSurveyUnit]"></xsl:copy-of>
     </xsl:function>
-        
+
+    <xsl:function name="tools:get-states">
+        <xsl:param name="idSurveyUnit"/>
+        <xsl:copy-of select="$statesSheet/table:table-row[normalize-space(table:table-cell[1])=$idSurveyUnit]"></xsl:copy-of>
+    </xsl:function>
+    
+    <xsl:function name="tools:get-contactAttempts">
+        <xsl:param name="idSurveyUnit"/>
+        <xsl:copy-of select="$contactAttemptsSheet/table:table-row[normalize-space(table:table-cell[1])=$idSurveyUnit]"></xsl:copy-of>
+    </xsl:function>
+    
     <xsl:template match="/">
         <xsl:apply-templates select="//office:spreadsheet/table:table[@table:name='surveyUnits']"/>        
     </xsl:template>
@@ -85,8 +98,40 @@
                             <Nolog><xsl:value-of select="tools:getColumn($row,19)"/></Nolog>
                             <Nole><xsl:value-of select="tools:getColumn($row,20)"/></Nole>
                             <Autre><xsl:value-of select="tools:getColumn($row,21)"/></Autre>
-                            <Nograp><xsl:value-of select="tools:getColumn($row,21)"/></Nograp>
+                            <Nograp><xsl:value-of select="tools:getColumn($row,22)"/></Nograp>
                         </SampleIdentifiers>
+                        <xsl:if test="normalize-space(tools:getColumn($row,23))!=''">
+                            <Comment><xsl:value-of select="tools:getColumn($row,23)"/></Comment>
+                        </xsl:if>
+                        <ContactAttempts>
+                            <xsl:for-each select="tools:get-contactAttempts(tools:getColumn($row,1))">
+                                <xsl:variable name="contactAttemptRow" select="tools:get-full-row(.)"/>
+                                <xsl:if test="normalize-space($contactAttemptRow)!=''">
+                                    <ContactAttempt>
+                                        <Value><xsl:value-of select="tools:getColumn($contactAttemptRow,2)"/></Value>
+                                        <Date><xsl:value-of select="tools:getColumn($contactAttemptRow,3)"/></Date>
+                                    </ContactAttempt>
+                                </xsl:if>
+                            </xsl:for-each>
+                        </ContactAttempts>
+                        <xsl:if test="normalize-space(tools:getColumn($row,24))!=''">
+                            <ContactOutcome>
+                                <Value><xsl:value-of select="tools:getColumn($row,24)"/></Value>
+                                <AttemptsNumber><xsl:value-of select="tools:getColumn($row,25)"/></AttemptsNumber>
+                                <Date><xsl:value-of select="tools:getColumn($row,26)"/></Date>
+                            </ContactOutcome>
+                        </xsl:if>
+                        <States>
+                            <xsl:for-each select="tools:get-states(tools:getColumn($row,1))">
+                                <xsl:variable name="stateRow" select="tools:get-full-row(.)"/>
+                                <xsl:if test="normalize-space($stateRow)!=''">
+                                    <State>
+                                        <Value><xsl:value-of select="tools:getColumn($stateRow,2)"/></Value>
+                                        <Date><xsl:value-of select="tools:getColumn($stateRow,3)"/></Date>
+                                    </State>
+                                </xsl:if>
+                            </xsl:for-each>
+                        </States>
                     </SurveyUnit>
                 </xsl:if>
             </xsl:for-each>
