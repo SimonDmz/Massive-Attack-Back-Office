@@ -2,6 +2,7 @@ package fr.insee.sabianedata.ws.service;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -71,7 +72,7 @@ public class MassiveAttackService {
 
                 try {
                         folderTemp = Files.createTempDirectory("folder-").toFile();
-                        File scenarii = new File("/scenarii");
+                        File scenarii = new File(MassiveAttackService.class.getResource("/scenarii").toString());
                         // Constants.class.getResource
                         File destination = new File(folderTemp.toString() + "/scenarii");
                         destination.mkdir();
