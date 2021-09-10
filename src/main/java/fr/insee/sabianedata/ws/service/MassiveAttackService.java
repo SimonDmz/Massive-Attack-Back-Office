@@ -71,7 +71,8 @@ public class MassiveAttackService {
 
                 try {
                         folderTemp = Files.createTempDirectory("folder-").toFile();
-                        File scenarii = new File("src/main/resources/scenarii");
+                        File scenarii = new File("/scenarii");
+                        // Constants.class.getResource
                         File destination = new File(folderTemp.toString() + "/scenarii");
                         destination.mkdir();
                         FileUtils.copyDirectory(scenarii, destination);
