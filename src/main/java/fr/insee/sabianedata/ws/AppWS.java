@@ -20,7 +20,7 @@ import org.springframework.core.env.MutablePropertySources;
 @SpringBootApplication(scanBasePackages = "fr.insee.sabianedata.ws")
 public class AppWS extends SpringBootServletInitializer {
 
-    public static final String APP_NAME = "sabaianedata";
+    public static final String APP_NAME = "sabianedata";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AppWS.class);
 
