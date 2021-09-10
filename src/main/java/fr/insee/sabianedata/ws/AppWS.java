@@ -38,7 +38,7 @@ public class AppWS extends SpringBootServletInitializer {
 
     public static void setProperty() {
         System.setProperty("spring.config.location",
-                "classpath:/," + "file:///${catalina.base}/webapps/sabianedata.properties");
+                "classpath:/," + "file:///${catalina.base}/webapps/sabdatab.properties");
     }
 
     @EventListener
