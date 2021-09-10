@@ -1,11 +1,9 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>fr.insee</groupId>
 	<artifactId>sabiane-data</artifactId>
-	<packaging>jar</packaging>
+	<packaging>war</packaging>
 	<version>1.4.11</version>
 	<name>Sabiane Data</name>
 
@@ -20,7 +18,7 @@
 		<javax.activation.version>1.2.0</javax.activation.version>
 		<jaxb.api.version>2.3.0</jaxb.api.version>
 		<springdoc-openapi-ui.version>1.5.5</springdoc-openapi-ui.version>
-		<saxon.version>9.7.0-8</saxon.version>		
+		<saxon.version>9.7.0-8</saxon.version>
 		<xalan.version>2.7.1</xalan.version>
 		<commons-io.version>2.7</commons-io.version>
 
@@ -112,7 +110,7 @@
 			<version>${commons-io.version}</version>
 		</dependency>
 
-			<dependency>
+		<dependency>
 			<groupId>com.sun.activation</groupId>
 			<artifactId>javax.activation</artifactId>
 			<version>${javax.activation.version}</version>
@@ -177,10 +175,10 @@
 
 		<!-- Prometheus Metrics -->
 		<dependency>
-            <groupId>io.micrometer</groupId>
-            <artifactId>micrometer-registry-prometheus</artifactId>
-            <version>1.6.6</version>
-        </dependency>
+			<groupId>io.micrometer</groupId>
+			<artifactId>micrometer-registry-prometheus</artifactId>
+			<version>1.6.6</version>
+		</dependency>
 	</dependencies>
 
 	<dependencyManagement>
@@ -217,7 +215,7 @@
 				</includes>
 			</resource>
 		</resources>
-		<plugins>	
+		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
