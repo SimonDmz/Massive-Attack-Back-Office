@@ -17,54 +17,49 @@ import org.springframework.core.env.EnumerablePropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.MutablePropertySources;
 
-
 @SpringBootApplication(scanBasePackages = "fr.insee.sabianedata.ws")
-public class AppWS extends SpringBootServletInitializer{
-	
-	
-	public static final String APP_NAME = "sabianedata";
-	
-	private static final Logger LOGGER = LoggerFactory.getLogger(AppWS.class);
-	
-	public static void main(String[] args) {
-		System.setProperty("spring.config.name", APP_NAME);
-		SpringApplication.run(AppWS.class, args);
-	}
+public class AppWS extends SpringBootServletInitializer {
 
-	@Override
-	protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-		System.setProperty("spring.config.name", APP_NAME);		
-		setProperty();
-		return application.sources(AppWS.class);
-	}
-	
-	public static void setProperty() {
-		System.setProperty("spring.config.location", "classpath:"+APP_NAME+".properties");
-	}
-	
-	@EventListener
+    public static final String APP_NAME = "sabaianedata";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AppWS.class);
+
+    public static void main(String[] args) {
+        System.setProperty("spring.config.name", APP_NAME);
+        SpringApplication.run(AppWS.class, args);
+    }
+
+    @Override
+    protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
+        System.setProperty("spring.config.name", APP_NAME);
+        setProperty();
+        return application.sources(AppWS.class);
+    }
+
+    public static void setProperty() {
+        System.setProperty("spring.config.location",
+                "classpath:/," + "file:///${catalina.base}/webapps/sabianedata.properties");
+    }
+
+    @EventListener
     public void handleContextRefresh(ContextRefreshedEvent event) {
         final Environment env = event.getApplicationContext().getEnvironment();
         LOGGER.info("================================ Properties ================================");
         final MutablePropertySources sources = ((AbstractEnvironment) env).getPropertySources();
-        StreamSupport.stream(sources.spliterator(), false)
-                .filter(ps -> ps instanceof EnumerablePropertySource)
-                .map(ps -> ((EnumerablePropertySource<?>) ps).getPropertyNames())
-                .flatMap(Arrays::stream)
-                .distinct()
+        StreamSupport.stream(sources.spliterator(), false).filter(ps -> ps instanceof EnumerablePropertySource)
+                .map(ps -> ((EnumerablePropertySource<?>) ps).getPropertyNames()).flatMap(Arrays::stream).distinct()
                 .filter(prop -> !(prop.contains("credentials") || prop.contains("password")))
                 .filter(prop -> prop.startsWith("fr.insee") || prop.startsWith("logging") || prop.startsWith("spring"))
-                .sorted()
-                .forEach(prop -> LOGGER.info("{}: {}", prop, env.getProperty(prop)));
+                .sorted().forEach(prop -> LOGGER.info("{}: {}", prop, env.getProperty(prop)));
         LOGGER.info("===========================================================================");
-        LOGGER.info("Available CPU : "+Runtime.getRuntime().availableProcessors());
-        LOGGER.info(String.format("Max memory : %.2f GB",Runtime.getRuntime().maxMemory()/1e9d));
+        LOGGER.info("Available CPU : " + Runtime.getRuntime().availableProcessors());
+        LOGGER.info(String.format("Max memory : %.2f GB", Runtime.getRuntime().maxMemory() / 1e9d));
         LOGGER.info("===========================================================================");
     }
-	
-	@EventListener
-	public void handleApplicationReady(ApplicationReadyEvent event) {
-        LOGGER.info("=============== "+APP_NAME+"  has successfully started. ===============");
-		
-	}
+
+    @EventListener
+    public void handleApplicationReady(ApplicationReadyEvent event) {
+        LOGGER.info("=============== " + APP_NAME + "  has successfully started. ===============");
+
+    }
 }
