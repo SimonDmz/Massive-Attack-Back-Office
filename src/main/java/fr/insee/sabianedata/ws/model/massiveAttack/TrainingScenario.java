@@ -6,6 +6,10 @@ import fr.insee.sabianedata.ws.model.pearl.CampaignDto;
 
 public class TrainingScenario {
 
+    public TrainingScenario() {
+
+    }
+
     public TrainingScenario(List<CampaignDto> campaigns, ScenarioType type, String label) {
         this.campaigns = campaigns;
         this.type = type;

@@ -2,14 +2,15 @@ package fr.insee.sabianedata.ws.service;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -20,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -62,29 +64,42 @@ public class MassiveAttackService {
         @Autowired
         private PearlApiService pearlApiService;
 
+        @Autowired
+        ResourceLoader resourceLoader;
+
         @Value("${fr.insee.sabianedata.security}")
         private String authMode;
 
-        private File folderTemp;
+        private File tempFolder;
+        private File tempScenariiFolder;
+
+        private HashMap<String, TrainingScenario> scenarii = new HashMap<>();
 
         @PostConstruct
         private void init() {
 
                 try {
-                        folderTemp = Files.createTempDirectory("folder-").toFile();
-                        File scenarii = new File(MassiveAttackService.class.getResource("/scenarii").toString());
-                        // Constants.class.getResource
-                        File destination = new File(folderTemp.toString() + "/scenarii");
-                        destination.mkdir();
-                        FileUtils.copyDirectory(scenarii, destination);
+                        tempFolder = Files.createTempDirectory("folder-").toFile();
+                        tempScenariiFolder = new File(tempFolder.toString() + "/scenarii");
+                        File scenarii = resourceLoader.getResource("classpath:scenarii").getFile();
+                        tempScenariiFolder.mkdirs();
+                        FileUtils.copyDirectory(scenarii, tempScenariiFolder);
                 } catch (IOException e) {
                         e.printStackTrace();
                 }
+
+                Stream<File> folders = Arrays.stream(tempScenariiFolder.listFiles());
+                List<TrainingScenario> listScenarii = folders
+                                .map(f -> trainingScenarioService.getTrainingScenario(tempScenariiFolder, f.getName()))
+                                .collect(Collectors.toList());
+                listScenarii.forEach(scenar -> scenarii.put(scenar.getLabel(), scenar));
+                LOGGER.debug("Init loading finished : {} loaded scenarii", scenarii.size());
+
         }
 
         @PreDestroy
         private void cleanup() {
-                boolean result = FileSystemUtils.deleteRecursively(folderTemp);
+                boolean result = FileSystemUtils.deleteRecursively(tempFolder);
                 LOGGER.debug("Clean-up result : " + result);
         }
 
@@ -98,13 +113,13 @@ public class MassiveAttackService {
                         throws Exception {
 
                 // 1 : dossier de traitement 'folder-'
-                File currentCampaignFolder = new File(folderTemp,
-                                "scenarii" + File.separator + scenario + File.separator + campaign);
+                File currentCampaignFolder = new File(tempScenariiFolder,
+                                scenario + File.separator + campaign.toUpperCase());
                 File queenFolder = new File(currentCampaignFolder, "queen");
                 File pearlFolder = new File(currentCampaignFolder, "pearl");
 
                 // 2 : extract Queen
-                File queenFodsInput = new File(queenFolder, "queen-campaign.fods");
+                File queenFodsInput = new File(queenFolder, "queen_campaign.fods");
                 CampaignDto queenCampaign = queenExtractEntities.getQueenCampaignFromFods(queenFodsInput);
                 List<QuestionnaireModelDto> questionnaireModels = queenExtractEntities
                                 .getQueenQuestionnaireModelsDtoFromFods(queenFodsInput, queenFolder.toString());
@@ -114,7 +129,7 @@ public class MassiveAttackService {
                                 queenFolder.toString());
 
                 // 3 : extract Pearl
-                File pearlFodsInput = new File(pearlFolder, "pearl-campaign.fods");
+                File pearlFodsInput = new File(pearlFolder, "pearl_campaign.fods");
 
                 fr.insee.sabianedata.ws.model.pearl.CampaignDto pearlCampaign = pearlExtractEntities
                                 .getPearlCampaignFromFods(pearlFodsInput);
@@ -139,6 +154,8 @@ public class MassiveAttackService {
                                 pearlCampaign.getVisibilities());
 
                 pearlCampaign.setVisibilities(visibilities);
+
+                // TODO create missing interviewers
 
                 // 7 : generate pearl survey-units for interviewers
                 LOGGER.debug("Pearl survey-units generation : " + interviewers.size() + " interviewers / "
@@ -225,7 +242,6 @@ public class MassiveAttackService {
                                         SurveyUnit newSu = new SurveyUnit(newId, newQuestionnaireId,
                                                         sudto.getStateData());
                                         SurveyUnitDto newSuDto = new SurveyUnitDto(sudto, newSu);
-                                        showQueenSUInfo(newSuDto);
                                         return newSuDto;
                                 }).collect(Collectors.toList())).flatMap(Collection::stream)
                                 .collect(Collectors.toList());
@@ -238,14 +254,6 @@ public class MassiveAttackService {
 
                 trainingCourse.getGenericInfo();
                 return trainingCourse;
-        }
-
-        private void showQueenSUInfo(SurveyUnitDto su) {
-                LOGGER.debug("queen su ID -> " + su.getId());
-                LOGGER.debug("queen su QuestId ->" + su.getQuestionnaireId());
-                LOGGER.debug("queen su comment ->" + su.getComment());
-                LOGGER.debug("queen su data ->" + su.getData());
-                LOGGER.debug("queen su perso ->" + su.getPersonalization());
         }
 
         private ArrayList<Visibility> updatingVisibilities(Long referenceDate, OrganisationUnitDto orgaUnit,
@@ -261,8 +269,8 @@ public class MassiveAttackService {
 
         }
 
-        public List<TrainingScenario> getTrainingScenariiTitles() {
-                return trainingScenarioService.getTrainingScenarii(folderTemp.toString());
+        public List<TrainingScenario> getTrainingScenariiTitles() throws Exception {
+                return new ArrayList<>(scenarii.values());
         }
 
         public TrainingCourse postTrainingCourse(TrainingCourse tc, HttpServletRequest request, Long referenceDate,
@@ -369,7 +377,7 @@ public class MassiveAttackService {
                         HttpServletRequest request, Long referenceDate, Plateform plateform,
                         List<String> interviewers) {
 
-                TrainingScenario scenar = trainingScenarioService.getTrainingScenario(scenarioId);
+                TrainingScenario scenar = trainingScenarioService.getTrainingScenario(tempScenariiFolder, scenarioId);
 
                 List<TrainingCourse> trainingCourses = scenar.getCampaigns().stream().map(camp -> {
                         try {

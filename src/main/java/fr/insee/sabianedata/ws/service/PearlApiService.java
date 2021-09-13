@@ -124,6 +124,7 @@ public class PearlApiService {
             }
         } catch (Exception e) {
             LOGGER.error("Can't retrieve user organisational-unit");
+            LOGGER.error(e.getMessage());
             return null;
         }
         return null;

@@ -43,8 +43,15 @@ public class MassiveAttackController {
 
     @Operation(summary = "Return list of available training courses")
     @GetMapping("training-course-scenario")
-    public List<TrainingScenario> getTrainingScenariiTitles() {
-        return massiveAttackService.getTrainingScenariiTitles();
+    public ResponseEntity<List<TrainingScenario>> getTrainingScenariiTitles() {
+        try {
+            List<TrainingScenario> scenarii = massiveAttackService.getTrainingScenariiTitles();
+            return new ResponseEntity<List<TrainingScenario>>(scenarii, HttpStatus.OK);
+        } catch (Exception e) {
+            LOGGER.error("Can't get training scenarii titles");
+            LOGGER.error(e.getMessage());
+            return new ResponseEntity<List<TrainingScenario>>(HttpStatus.BAD_REQUEST);
+        }
     }
 
     @Operation(summary = "Create a training course")

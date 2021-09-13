@@ -1,7 +1,6 @@
 package fr.insee.sabianedata.ws.service;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -13,8 +12,8 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ResourceUtils;
 
 import fr.insee.sabianedata.ws.model.massiveAttack.TrainingScenario;
 import fr.insee.sabianedata.ws.model.pearl.Campaign;
@@ -28,26 +27,32 @@ public class TrainingScenarioService {
     @Autowired
     PearlExtractEntities pearlExtractEntities;
 
-    public TrainingScenario getTrainingScenario(String tsId) {
+    @Autowired
+    ResourceLoader resourceLoader;
+
+    public TrainingScenario getTrainingScenario(File scenariiFolder, String tsId) {
 
         try {
-            File infoFile = ResourceUtils.getFile("scenarii/" + tsId + "/info.json");
+            File scenarioDirectory = new File(scenariiFolder, tsId);
+            File infoFile = new File(scenarioDirectory, "info.json");
             ObjectMapper objectMapper = new ObjectMapper();
 
             TrainingScenario ts = objectMapper.readValue(infoFile, TrainingScenario.class);
+            LOGGER.debug(ts.getLabel());
+            LOGGER.debug(ts.getType().toString());
 
-            File scenariiFolder = ResourceUtils.getFile("scenarii/" + tsId);
-            List<CampaignDto> campaigns = Arrays.stream(scenariiFolder.listFiles()).map(f -> {
-                try {
-                    return pearlExtractEntities.getPearlCampaignFromFods(f);
-                } catch (Exception e) {
-                    LOGGER.warn("Error when extracting campaign from " + f.getAbsolutePath());
-                    LOGGER.warn(e.getMessage());
-                    return null;
-                }
-            }).collect(Collectors.toList());
+            List<CampaignDto> campaigns = Arrays.stream(scenarioDirectory.listFiles()).filter(f -> f.isDirectory())
+                    .map(f -> {
+                        try {
+                            return pearlExtractEntities
+                                    .getPearlCampaignFromFods(new File(f, "pearl/pearl_campaign.fods"));
+                        } catch (Exception e) {
+                            LOGGER.warn("Error when extracting campaign from " + f.getAbsolutePath());
+                            LOGGER.warn(e.getMessage());
+                            return null;
+                        }
+                    }).collect(Collectors.toList());
             if (campaigns.contains(null)) {
-
                 throw new RuntimeException("extraction error");
             }
 
@@ -67,13 +72,12 @@ public class TrainingScenarioService {
 
     }
 
-    public List<TrainingScenario> getTrainingScenarii(String folder) {
+    public List<TrainingScenario> getTrainingScenarii(File scenariiFolder) throws Exception {
         try {
-            File scenariiFolder = new File(folder, "scenarii");
             Stream<File> folders = Arrays.stream(scenariiFolder.listFiles());
-            return folders.map(f -> getTrainingScenario(f.getName())).collect(Collectors.toList());
+            return folders.map(f -> getTrainingScenario(scenariiFolder, f.getName())).collect(Collectors.toList());
         } catch (IllegalArgumentException e) {
-            return new ArrayList<>();
+            throw new Exception("Can't get training scenarii - " + e.getMessage());
         }
     }
 
