@@ -42,14 +42,6 @@ public class TrainingCourse {
         this.assignements = assignements;
     }
 
-    public void getGenericInfo() {
-        System.out.println("nomenclatures : " + nomenclatures.size());
-        System.out.println("questionnaires : " + questionnaireModels.size());
-        System.out.println("pearl SU : " + pearlSurveyUnits.size());
-        System.out.println("queen SU : " + queenSurveyUnits.size());
-        pearlSurveyUnits.stream().forEach(su -> System.out.println(su.toString()));
-    }
-
     public List<NomenclatureDto> getNomenclatures() {
         return nomenclatures;
     }

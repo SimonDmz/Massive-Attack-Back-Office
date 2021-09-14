@@ -16,6 +16,8 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.servlet.http.HttpServletRequest;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +37,8 @@ import fr.insee.sabianedata.ws.model.pearl.Assignement;
 import fr.insee.sabianedata.ws.model.pearl.Campaign;
 import fr.insee.sabianedata.ws.model.pearl.ContactAttemptDto;
 import fr.insee.sabianedata.ws.model.pearl.ContactOutcomeDto;
+import fr.insee.sabianedata.ws.model.pearl.InterviewerDto;
+import fr.insee.sabianedata.ws.model.pearl.InterviewersDto;
 import fr.insee.sabianedata.ws.model.pearl.OrganisationUnitDto;
 import fr.insee.sabianedata.ws.model.pearl.SurveyUnitStateDto;
 import fr.insee.sabianedata.ws.model.pearl.Visibility;
@@ -155,8 +159,6 @@ public class MassiveAttackService {
 
                 pearlCampaign.setVisibilities(visibilities);
 
-                // TODO create missing interviewers
-
                 // 7 : generate pearl survey-units for interviewers
                 LOGGER.debug("Pearl survey-units generation : " + interviewers.size() + " interviewers / "
                                 + pearlSurveyUnits.size() + " survey-units");
@@ -197,9 +199,6 @@ public class MassiveAttackService {
 
                                 ).flatMap(Collection::stream).collect(Collectors.toList());
 
-                // retrieve assignements with id parsing ;o)
-                LOGGER.debug("generating Assignements");
-
                 List<Assignement> assignements = distributedPearlSurveyUnits.stream().map(su -> {
                         String[] arr = su.getId().split("_");
                         return new Assignement(su.getId(), arr[2]);
@@ -230,7 +229,6 @@ public class MassiveAttackService {
                 queenCampaign.setQuestionnaireIds((ArrayList<String>) newQuestionnaireIds);
 
                 // 9 queen : generate queen survey_units with unique ids for each interviewer
-                System.out.println("PTC / 2 ----------------------");
                 LOGGER.debug("Queen survey-units generation : " + interviewers.size() + " interviewers / "
                                 + queenSurveyUnits.size() + " survey-units");
 
@@ -246,13 +244,10 @@ public class MassiveAttackService {
                                 }).collect(Collectors.toList())).flatMap(Collection::stream)
                                 .collect(Collectors.toList());
 
-                System.out.println("PTC / 3 ----------------------");
-
                 TrainingCourse trainingCourse = new TrainingCourse(distributedPearlSurveyUnits,
                                 distributedQueenSurveyUnits, pearlCampaign, queenCampaign, newQuestionnaireModels,
                                 nomenclatures, assignements);
 
-                trainingCourse.getGenericInfo();
                 return trainingCourse;
         }
 
@@ -377,6 +372,12 @@ public class MassiveAttackService {
                         HttpServletRequest request, Long referenceDate, Plateform plateform,
                         List<String> interviewers) {
 
+                boolean interviewersCheck = checkInterviewers(interviewers, request, plateform);
+
+                if (!interviewersCheck) {
+                        new ResponseModel(false, "Error when checking interviewers");
+                }
+
                 TrainingScenario scenar = trainingScenarioService.getTrainingScenario(tempScenariiFolder, scenarioId);
 
                 List<TrainingCourse> trainingCourses = scenar.getCampaigns().stream().map(camp -> {
@@ -406,6 +407,35 @@ public class MassiveAttackService {
                         return new ResponseModel(false, "Error when posting campaigns");
                 }
                 return new ResponseModel(true, "Training scenario generated");
+        }
+
+        public boolean checkInterviewers(List<String> interviewers, HttpServletRequest request, Plateform plateform) {
+                InterviewerDto validInterviewer = new InterviewerDto();
+                ArrayList<InterviewerDto> interviewerList = new ArrayList<>();
+                interviewerList.add(validInterviewer);
+                validInterviewer.setFirstName("FirstName");
+                validInterviewer.setLastName("LasName");
+                validInterviewer.setEmail("firstname.lastname@valid.net");
+                validInterviewer.setPhoneNumer("+33000000000");
+                return interviewers.stream().map(inter -> {
+                        validInterviewer.setId(inter);
+                        try {
+                                ResponseEntity<?> postResponse = pearlApiService.postInterviewersToApi(request,
+                                                interviewerList, plateform);
+                                if (postResponse.getStatusCode() == HttpStatus.valueOf(200)
+                                                || postResponse.getStatusCode() == HttpStatus.valueOf(400)) {
+                                        return new ResponseEntity<>(HttpStatus.OK);
+                                } else {
+                                        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+                                }
+                        } catch (JsonProcessingException e) {
+                                LOGGER.debug("Interviewer " + inter + " already present");
+                                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+                        }
+
+                }).filter(response -> !response.getStatusCode().is2xxSuccessful()).collect(Collectors.toList())
+                                .size() == 0;
+
         }
 
         public ResponseEntity<String> deleteCampaign(HttpServletRequest request, Plateform plateform, String id) {
