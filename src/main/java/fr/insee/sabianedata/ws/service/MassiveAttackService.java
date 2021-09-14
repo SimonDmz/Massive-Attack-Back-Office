@@ -28,6 +28,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
+import org.springframework.web.client.RestClientException;
 
 import fr.insee.sabianedata.ws.config.Plateform;
 import fr.insee.sabianedata.ws.model.ResponseModel;
@@ -422,15 +423,17 @@ public class MassiveAttackService {
                         try {
                                 ResponseEntity<?> postResponse = pearlApiService.postInterviewersToApi(request,
                                                 interviewerList, plateform);
-                                if (postResponse.getStatusCode() == HttpStatus.valueOf(200)
-                                                || postResponse.getStatusCode() == HttpStatus.valueOf(400)) {
-                                        return new ResponseEntity<>(HttpStatus.OK);
-                                } else {
-                                        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-                                }
+                                LOGGER.info("Interviewer " + inter + " created.");
+                                return postResponse;
                         } catch (JsonProcessingException e) {
-                                LOGGER.debug("Interviewer " + inter + " already present");
+                                LOGGER.warn("Error when creating interviewer " + inter);
+                                LOGGER.error(e.getMessage());
                                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+                        } catch (RestClientException e) {
+                                LOGGER.info("Interviewer " + inter + " already present.");
+                                LOGGER.debug(e.getMessage());
+
+                                return new ResponseEntity<>(HttpStatus.OK);
                         }
 
                 }).filter(response -> !response.getStatusCode().is2xxSuccessful()).collect(Collectors.toList())
