@@ -396,6 +396,15 @@ public class MassiveAttackService {
                         return new ResponseModel(false, "Error when loading campaigns");
                 }
 
+                boolean success = trainingCourses.stream()
+                                .map(tc -> postTrainingCourse(tc, request, referenceDate, plateform, interviewers))
+                                .filter(tc -> tc == null).collect(Collectors.toList()).size() == 0;
+
+                if (!success) {
+                        rollBackOnFail(trainingCourses.stream().map(tc -> tc.getCampaignId())
+                                        .collect(Collectors.toList()));
+                        return new ResponseModel(false, "Error when posting campaigns");
+                }
                 return new ResponseModel(true, "Training scenario generated");
         }
 
