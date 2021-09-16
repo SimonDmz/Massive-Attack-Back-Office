@@ -9,14 +9,14 @@ import fr.insee.sabianedata.ws.utils.DateParser;
 public class ContactAttemptDto {
 
     @JacksonXmlProperty(localName = "Value")
-    private String value;
+    private String status;
     @JacksonXmlProperty(localName = "Date")
     private String dateString;
 
     private Long date;
 
     public ContactAttemptDto(ContactAttemptDto ca, Long reference) {
-        this.value = ca.getValue();
+        this.status = ca.getStatus();
         this.date = DateParser.relativeDateParse(ca.getDateString(), reference);
     }
 
@@ -31,12 +31,12 @@ public class ContactAttemptDto {
         this.date = date;
     }
 
-    public String getValue() {
-        return value;
+    public String getStatus() {
+        return status;
     }
 
-    public void setValue(String value) {
-        this.value = value;
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     public String getDateString() {

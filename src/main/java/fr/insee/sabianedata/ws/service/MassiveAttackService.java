@@ -415,7 +415,7 @@ public class MassiveAttackService {
                 ArrayList<InterviewerDto> interviewerList = new ArrayList<>();
                 interviewerList.add(validInterviewer);
                 validInterviewer.setFirstName("FirstName");
-                validInterviewer.setLastName("LasName");
+                validInterviewer.setLastName("LastName");
                 validInterviewer.setEmail("firstname.lastname@valid.net");
                 validInterviewer.setPhoneNumer("+33000000000");
                 return interviewers.stream().map(inter -> {

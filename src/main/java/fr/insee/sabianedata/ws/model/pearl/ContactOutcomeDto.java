@@ -9,9 +9,9 @@ import fr.insee.sabianedata.ws.utils.DateParser;
 public class ContactOutcomeDto {
 
     @JacksonXmlProperty(localName = "Value")
-    private String value;
+    private String type;
     @JacksonXmlProperty(localName = "AttemptsNumber")
-    private int attemptsNumber;
+    private int totalNumberOfContactAttempts;
     @JacksonXmlProperty(localName = "Date")
     private String dateString;
 
@@ -21,7 +21,7 @@ public class ContactOutcomeDto {
     }
 
     public ContactOutcomeDto(ContactOutcomeDto co, Long reference) throws IllegalArgumentException {
-        this.value = co.getValue();
+        this.type = co.getType();
         this.dateString = co.getDateString();
         this.date = DateParser.relativeDateParse(co.getDateString(), reference);
     }
@@ -34,20 +34,20 @@ public class ContactOutcomeDto {
         this.date = date;
     }
 
-    public String getValue() {
-        return value;
+    public String getType() {
+        return type;
     }
 
-    public void setValue(String value) {
-        this.value = value;
+    public void setType(String type) {
+        this.type = type;
     }
 
-    public int getAttemptsNumber() {
-        return attemptsNumber;
+    public int getTotalNumberOfContactAttempts() {
+        return totalNumberOfContactAttempts;
     }
 
-    public void setAttemptsNumber(int attemptsNumber) {
-        this.attemptsNumber = attemptsNumber;
+    public void setTotalNumberOfContactAttempts(int totalNumberOfContactAttempts) {
+        this.totalNumberOfContactAttempts = totalNumberOfContactAttempts;
     }
 
     public String getDateString() {
