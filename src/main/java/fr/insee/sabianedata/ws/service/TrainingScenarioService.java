@@ -38,8 +38,6 @@ public class TrainingScenarioService {
             ObjectMapper objectMapper = new ObjectMapper();
 
             TrainingScenario ts = objectMapper.readValue(infoFile, TrainingScenario.class);
-            LOGGER.debug(ts.getLabel());
-            LOGGER.debug(ts.getType().toString());
 
             List<CampaignDto> campaigns = Arrays.stream(scenarioDirectory.listFiles()).filter(f -> f.isDirectory())
                     .map(f -> {

@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -32,6 +33,7 @@ import org.springframework.web.client.RestClientException;
 
 import fr.insee.sabianedata.ws.config.Plateform;
 import fr.insee.sabianedata.ws.model.ResponseModel;
+import fr.insee.sabianedata.ws.model.massiveAttack.ScenarioType;
 import fr.insee.sabianedata.ws.model.massiveAttack.TrainingCourse;
 import fr.insee.sabianedata.ws.model.massiveAttack.TrainingScenario;
 import fr.insee.sabianedata.ws.model.pearl.Assignement;
@@ -39,7 +41,6 @@ import fr.insee.sabianedata.ws.model.pearl.Campaign;
 import fr.insee.sabianedata.ws.model.pearl.ContactAttemptDto;
 import fr.insee.sabianedata.ws.model.pearl.ContactOutcomeDto;
 import fr.insee.sabianedata.ws.model.pearl.InterviewerDto;
-import fr.insee.sabianedata.ws.model.pearl.InterviewersDto;
 import fr.insee.sabianedata.ws.model.pearl.OrganisationUnitDto;
 import fr.insee.sabianedata.ws.model.pearl.SurveyUnitStateDto;
 import fr.insee.sabianedata.ws.model.pearl.Visibility;
@@ -114,8 +115,8 @@ public class MassiveAttackService {
         }
 
         private TrainingCourse prepareTrainingCourse(String campaign, String scenario, String campaignLabel,
-                        HttpServletRequest request, Long referenceDate, Plateform plateform, List<String> interviewers)
-                        throws Exception {
+                        HttpServletRequest request, Long referenceDate, Plateform plateform, List<String> interviewers,
+                        ScenarioType type, TrainingScenario scenar) throws Exception {
 
                 // 1 : dossier de traitement 'folder-'
                 File currentCampaignFolder = new File(tempScenariiFolder,
@@ -140,14 +141,16 @@ public class MassiveAttackService {
                                 .getPearlCampaignFromFods(pearlFodsInput);
                 List<fr.insee.sabianedata.ws.model.pearl.SurveyUnitDto> pearlSurveyUnits = pearlExtractEntities
                                 .getPearlSurveyUnitsFromFods(pearlFodsInput);
+                List<Assignement> assignements = pearlExtractEntities.getAssignementsFromFods(pearlFodsInput);
 
                 LOGGER.debug("XML extractions completed");
                 // 4 : get user organisationUnit
                 OrganisationUnitDto orgaUnit = pearlApiService.getUserOrganizationUnit(request, plateform);
 
                 // 5 : make campaignId uniq => {campaign.id}_{OU}{date}
-                String newCampaignId = pearlCampaign.getCampaign() + "_" + orgaUnit.getOrganisationUnit() + "_"
-                                + referenceDate;
+                String newCampaignId = String.join("_", pearlCampaign.getCampaign(), orgaUnit.getOrganisationUnit(),
+                                referenceDate.toString());
+
                 pearlCampaign.setCampaign(newCampaignId);
                 pearlCampaign.setCampaignLabel(campaignLabel);
                 LOGGER.debug("Generating new campaignId = " + newCampaignId);
@@ -161,63 +164,24 @@ public class MassiveAttackService {
                 pearlCampaign.setVisibilities(visibilities);
 
                 // 7 : generate pearl survey-units for interviewers
-                LOGGER.debug("Pearl survey-units generation : " + interviewers.size() + " interviewers / "
-                                + pearlSurveyUnits.size() + " survey-units");
 
-                List<fr.insee.sabianedata.ws.model.pearl.SurveyUnitDto> distributedPearlSurveyUnits = interviewers
-                                .stream().map(in -> pearlSurveyUnits.stream().map(su -> {
-                                        LOGGER.debug("generating pearl su : " + su.getId() + " for " + in);
-                                        fr.insee.sabianedata.ws.model.pearl.SurveyUnitDto newSu = new fr.insee.sabianedata.ws.model.pearl.SurveyUnitDto(
-                                                        su);
-                                        newSu.setCampaign(pearlCampaign.getCampaign());
-                                        newSu.setOrganizationUnitId(orgaUnit.getOrganisationUnit());
-                                        newSu.setId(su.getId() + "_" + campaign + "_" + in + "_" + referenceDate);
-
-                                        // states
-                                        List<SurveyUnitStateDto> statesList = Optional.ofNullable(su.getStates())
-                                                        .orElse(new ArrayList<>()).stream()
-                                                        .map(state -> new SurveyUnitStateDto(state, referenceDate))
-                                                        .collect(Collectors.toList());
-                                        ArrayList<SurveyUnitStateDto> newStates = new ArrayList<>(statesList);
-                                        newSu.setStates(newStates);
-
-                                        // contactOutcome
-                                        ContactOutcomeDto newContactOutcomeDto = su.getContactOutcome() != null
-                                                        ? new ContactOutcomeDto(su.getContactOutcome(), referenceDate)
-                                                        : null;
-                                        newSu.setContactOutcome(newContactOutcomeDto);
-
-                                        // contactAttempts
-                                        List<ContactAttemptDto> newCAs = Optional.ofNullable(su.getContactAttempts())
-                                                        .orElse(new ArrayList<>()).stream()
-                                                        .map(ca -> new ContactAttemptDto(ca, referenceDate))
-                                                        .collect(Collectors.toList());
-                                        ArrayList<ContactAttemptDto> newContactAttempts = new ArrayList<>(newCAs);
-                                        newSu.setContactAttempts(newContactAttempts);
-
-                                        return newSu;
-                                }).collect(Collectors.toList())
-
-                                ).flatMap(Collection::stream).collect(Collectors.toList());
-
-                List<Assignement> assignements = distributedPearlSurveyUnits.stream().map(su -> {
-                        String[] arr = su.getId().split("_");
-                        return new Assignement(su.getId(), arr[2]);
-                }).collect(Collectors.toList());
-                LOGGER.debug(assignements.size() + " assignements generated");
+                List<fr.insee.sabianedata.ws.model.pearl.SurveyUnitDto> distributedPearlSurveyUnits = generatePearlSurveyUnits(
+                                campaign, pearlCampaign, referenceDate, orgaUnit, pearlSurveyUnits, interviewers,
+                                assignements, type);
 
                 // 8 Queen : make uniq campaignId and questionnaireId
-                String newQueenCampaignId = queenCampaign.getId() + "_" + orgaUnit.getOrganisationUnit() + "_"
-                                + referenceDate;
+                String newQueenCampaignId = String.join("_", queenCampaign.getId(), orgaUnit.getOrganisationUnit(),
+                                referenceDate.toString());
                 queenCampaign.setId(newQueenCampaignId);
                 queenCampaign.setLabel(campaignLabel);
                 LOGGER.debug("Generated queen campaignId : " + newQueenCampaignId);
-                // awesome map to remember questionnaireId for queenSurveyUnits
+
+                // map oldQuestId to new questModels
                 HashMap<String, String> questionnaireIdMapping = new HashMap<>();
 
                 List<QuestionnaireModelDto> newQuestionnaireModels = questionnaireModels.stream().map(qm -> {
-                        String newQuestionnaireModelId = qm.getIdQuestionnaireModel() + "_"
-                                        + orgaUnit.getOrganisationUnit() + "_" + referenceDate;
+                        String newQuestionnaireModelId = String.join("_", qm.getIdQuestionnaireModel(),
+                                        orgaUnit.getOrganisationUnit(), referenceDate.toString());
                         questionnaireIdMapping.put(qm.getIdQuestionnaireModel(), newQuestionnaireModelId);
                         qm.setIdQuestionnaireModel(newQuestionnaireModelId);
                         qm.setCampaignId(newQueenCampaignId);
@@ -229,27 +193,137 @@ public class MassiveAttackService {
 
                 queenCampaign.setQuestionnaireIds((ArrayList<String>) newQuestionnaireIds);
 
-                // 9 queen : generate queen survey_units with unique ids for each interviewer
-                LOGGER.debug("Queen survey-units generation : " + interviewers.size() + " interviewers / "
-                                + queenSurveyUnits.size() + " survey-units");
+                // 9 queen : generate queen survey_units
+                // with unique ids for each interviewer
 
-                List<SurveyUnitDto> distributedQueenSurveyUnits = interviewers.stream()
-                                .map(in -> queenSurveyUnits.stream().map(sudto -> {
-                                        String newId = sudto.getId() + "_" + campaign + "_" + in + "_" + referenceDate;
-                                        String newQuestionnaireId = questionnaireIdMapping
-                                                        .get(sudto.getQuestionnaireId());
-                                        SurveyUnit newSu = new SurveyUnit(newId, newQuestionnaireId,
-                                                        sudto.getStateData());
-                                        SurveyUnitDto newSuDto = new SurveyUnitDto(sudto, newSu);
-                                        return newSuDto;
-                                }).collect(Collectors.toList())).flatMap(Collection::stream)
-                                .collect(Collectors.toList());
+                List<SurveyUnitDto> distributedQueenSurveyUnits = generateQueenSurveyUnits(campaign, referenceDate,
+                                queenSurveyUnits, interviewers, assignements, type, questionnaireIdMapping);
+
+                // update assignements
+                assignements = generateDistributedAssignements(distributedPearlSurveyUnits);
+                LOGGER.debug(assignements.size() + " assignements generated");
 
                 TrainingCourse trainingCourse = new TrainingCourse(distributedPearlSurveyUnits,
                                 distributedQueenSurveyUnits, pearlCampaign, queenCampaign, newQuestionnaireModels,
                                 nomenclatures, assignements);
 
                 return trainingCourse;
+        }
+
+        private List<Assignement> generateDistributedAssignements(
+                        List<fr.insee.sabianedata.ws.model.pearl.SurveyUnitDto> distributedPearlSurveyUnits) {
+                return distributedPearlSurveyUnits.stream().map(su -> {
+                        String[] arr = su.getId().split("_");
+                        return new Assignement(su.getId(), arr[2]);
+                }).collect(Collectors.toList());
+
+        }
+
+        private List<fr.insee.sabianedata.ws.model.pearl.SurveyUnitDto> generatePearlSurveyUnits(String campaign,
+                        fr.insee.sabianedata.ws.model.pearl.CampaignDto pearlCampaign, Long referenceDate,
+                        OrganisationUnitDto orgaUnit,
+                        List<fr.insee.sabianedata.ws.model.pearl.SurveyUnitDto> pearlSurveyUnits,
+                        List<String> interviewers, List<Assignement> assignements, ScenarioType type) {
+
+                List<fr.insee.sabianedata.ws.model.pearl.SurveyUnitDto> newSurveyUnits = new ArrayList<>();
+
+                if (type.equals(ScenarioType.INTERVIEWER)) {
+                        LOGGER.debug("Pearl survey-units generation : " + interviewers.size() + " interviewers / "
+                                        + pearlSurveyUnits.size() + " survey-units");
+                        newSurveyUnits = interviewers.stream().map(in -> pearlSurveyUnits.stream().map(su -> {
+                                LOGGER.debug("generating pearl su : " + su.getId() + " for " + in);
+
+                                return updatePearlSurveyUnit(su, in, pearlCampaign, campaign, orgaUnit, referenceDate);
+                        }).collect(Collectors.toList())
+
+                        ).flatMap(Collection::stream).collect(Collectors.toList());
+
+                }
+                if (type.equals(ScenarioType.MANAGER)) {
+
+                        Map<String, String> assignMap = assignements.stream().collect(
+                                        Collectors.toMap(Assignement::getSurveyUnitId, Assignement::getInterviewerId));
+                        newSurveyUnits = pearlSurveyUnits.stream()
+                                        .map(su -> updatePearlSurveyUnit(su, assignMap.get(su.getId()), pearlCampaign,
+                                                        campaign, orgaUnit, referenceDate))
+                                        .collect(Collectors.toList());
+
+                }
+
+                return newSurveyUnits;
+        }
+
+        private fr.insee.sabianedata.ws.model.pearl.SurveyUnitDto updatePearlSurveyUnit(
+                        fr.insee.sabianedata.ws.model.pearl.SurveyUnitDto initialSurveyUnit, String interviewer,
+                        fr.insee.sabianedata.ws.model.pearl.CampaignDto pearlCampaign, String campaign,
+                        OrganisationUnitDto orgaUnit, Long referenceDate) {
+
+                fr.insee.sabianedata.ws.model.pearl.SurveyUnitDto newSu = new fr.insee.sabianedata.ws.model.pearl.SurveyUnitDto(
+                                initialSurveyUnit);
+                newSu.setCampaign(pearlCampaign.getCampaign());
+                newSu.setOrganizationUnitId(orgaUnit.getOrganisationUnit());
+                newSu.setId(String.join("_", initialSurveyUnit.getId(), campaign, interviewer,
+                                referenceDate.toString()));
+
+                // states
+                List<SurveyUnitStateDto> statesList = Optional.ofNullable(initialSurveyUnit.getStates())
+                                .orElse(new ArrayList<>()).stream()
+                                .map(state -> new SurveyUnitStateDto(state, referenceDate))
+                                .collect(Collectors.toList());
+                ArrayList<SurveyUnitStateDto> newStates = new ArrayList<>(statesList);
+                newSu.setStates(newStates);
+
+                // contactOutcome
+                ContactOutcomeDto newContactOutcomeDto = initialSurveyUnit.getContactOutcome() != null
+                                ? new ContactOutcomeDto(initialSurveyUnit.getContactOutcome(), referenceDate)
+                                : null;
+                newSu.setContactOutcome(newContactOutcomeDto);
+
+                // contactAttempts
+                List<ContactAttemptDto> newCAs = Optional.ofNullable(initialSurveyUnit.getContactAttempts())
+                                .orElse(new ArrayList<>()).stream().map(ca -> new ContactAttemptDto(ca, referenceDate))
+                                .collect(Collectors.toList());
+                ArrayList<ContactAttemptDto> newContactAttempts = new ArrayList<>(newCAs);
+                newSu.setContactAttempts(newContactAttempts);
+
+                return newSu;
+        }
+
+        private SurveyUnitDto updateQueenSurveyUnit(SurveyUnitDto initialSurveyUnit, String interviewer,
+                        String campaign, String newQuestionnaireId, Long referenceDate) {
+
+                String newId = String.join("_", initialSurveyUnit.getId(), campaign, interviewer,
+                                referenceDate.toString());
+                SurveyUnit newSu = new SurveyUnit(newId, newQuestionnaireId, initialSurveyUnit.getStateData());
+                SurveyUnitDto newSuDto = new SurveyUnitDto(initialSurveyUnit, newSu);
+                return newSuDto;
+
+        }
+
+        private List<SurveyUnitDto> generateQueenSurveyUnits(String campaign, Long referenceDate,
+                        List<SurveyUnitDto> queenSurveyUnits, List<String> interviewers, List<Assignement> assignements,
+                        ScenarioType type, HashMap<String, String> questionnaireIdMapping) {
+                LOGGER.debug("Queen survey-units generation : " + interviewers.size() + " interviewers / "
+                                + queenSurveyUnits.size() + " survey-units");
+                List<SurveyUnitDto> newSurveyUnits = new ArrayList<>();
+                if (type.equals(ScenarioType.INTERVIEWER)) {
+                        newSurveyUnits = interviewers.stream().map(in -> queenSurveyUnits.stream().map(sudto -> {
+                                String newQuestionnaireId = questionnaireIdMapping.get(sudto.getQuestionnaireId());
+                                return updateQueenSurveyUnit(sudto, in, campaign, newQuestionnaireId, referenceDate);
+
+                        }).collect(Collectors.toList())).flatMap(Collection::stream).collect(Collectors.toList());
+                }
+                if (type.equals(ScenarioType.MANAGER)) {
+                        Map<String, String> assignMap = assignements.stream().collect(
+                                        Collectors.toMap(Assignement::getSurveyUnitId, Assignement::getInterviewerId));
+                        newSurveyUnits = queenSurveyUnits.stream().map(su -> {
+                                String newQuestionnaireId = questionnaireIdMapping.get(su.getQuestionnaireId());
+                                return updateQueenSurveyUnit(su, assignMap.get(su.getId()), campaign,
+                                                newQuestionnaireId, referenceDate);
+                        }).collect(Collectors.toList());
+
+                }
+                return newSurveyUnits;
         }
 
         private ArrayList<Visibility> updatingVisibilities(Long referenceDate, OrganisationUnitDto orgaUnit,
@@ -384,7 +458,8 @@ public class MassiveAttackService {
                 List<TrainingCourse> trainingCourses = scenar.getCampaigns().stream().map(camp -> {
                         try {
                                 return prepareTrainingCourse(camp.getCampaign(), scenarioId, camp.getCampaignLabel(),
-                                                request, referenceDate, plateform, interviewers);
+                                                request, referenceDate, plateform, interviewers, scenar.getType(),
+                                                scenar);
                         } catch (Exception e1) {
                                 LOGGER.error("coudn't create training course " + camp.getCampaign(), e1);
                                 e1.printStackTrace();
