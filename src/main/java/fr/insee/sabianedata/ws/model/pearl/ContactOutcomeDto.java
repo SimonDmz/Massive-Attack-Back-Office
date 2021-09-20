@@ -11,11 +11,12 @@ public class ContactOutcomeDto {
     @JacksonXmlProperty(localName = "Value")
     private String type;
     @JacksonXmlProperty(localName = "AttemptsNumber")
-    private int totalNumberOfContactAttempts;
+    private String attemptsNumber;
     @JacksonXmlProperty(localName = "Date")
     private String dateString;
 
     private Long date;
+    private int totalNumberOfContactAttempts;
 
     public ContactOutcomeDto() {
     }
@@ -46,8 +47,8 @@ public class ContactOutcomeDto {
         return totalNumberOfContactAttempts;
     }
 
-    public void setTotalNumberOfContactAttempts(int totalNumberOfContactAttempts) {
-        this.totalNumberOfContactAttempts = totalNumberOfContactAttempts;
+    public void setAttemptsNumber(String attemptsNumber) {
+        this.totalNumberOfContactAttempts = Integer.parseInt(attemptsNumber);
     }
 
     public String getDateString() {
