@@ -30,7 +30,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "Massive Attack : Post data to Pearl and Queen APIs")
 @RestController
-@RequestMapping("/massiveAttack/api")
+@RequestMapping("/massive-attack/api")
 public class MassiveAttackController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MassiveAttackController.class);

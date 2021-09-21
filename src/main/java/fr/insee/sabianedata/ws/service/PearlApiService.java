@@ -132,7 +132,6 @@ public class PearlApiService {
 
     public List<Campaign> getCampaigns(HttpServletRequest request, Plateform plateform) {
         final String apiUri = pearlProperties.getHostFromEnum(plateform) + "/api/campaigns";
-        RestTemplate restTemplate = new RestTemplate();
         HttpHeaders httpHeaders = createSimpleHeadersAuth(request);
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         LOGGER.info("Trying to get campaigns list");
@@ -150,7 +149,6 @@ public class PearlApiService {
     public ResponseEntity<String> deleteCampaign(HttpServletRequest request, Plateform plateform, String id) {
         LOGGER.info("pearl service : delete");
         final String apiUri = pearlProperties.getHostFromEnum(plateform) + "/api/campaign/" + id;
-        RestTemplate restTemplate = new RestTemplate();
         HttpHeaders httpHeaders = createSimpleHeadersAuth(request);
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         return restTemplate.exchange(apiUri, HttpMethod.DELETE, new HttpEntity<>(id, httpHeaders), String.class);

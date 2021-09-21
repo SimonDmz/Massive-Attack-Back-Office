@@ -20,7 +20,7 @@ import org.springframework.core.env.MutablePropertySources;
 @SpringBootApplication(scanBasePackages = "fr.insee.sabianedata.ws")
 public class AppWS extends SpringBootServletInitializer {
 
-    public static final String APP_NAME = "sabianedata";
+    public static final String APP_NAME = "sabdatab";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AppWS.class);
 
@@ -38,7 +38,7 @@ public class AppWS extends SpringBootServletInitializer {
 
     public static void setProperty() {
         System.setProperty("spring.config.location",
-                "classpath:/," + "file:///${catalina.base}/webapps/sabdatab.properties");
+                "classpath:/," + "file:///${catalina.base}/webapps/" + APP_NAME + ".properties");
     }
 
     @EventListener
