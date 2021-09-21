@@ -60,7 +60,7 @@ public class MassiveAttackController {
             @RequestParam(value = "campaignId") String campaignId,
             @RequestParam(value = "campaignLabel") String campaignLabel,
             @RequestParam(value = "dateReference") Long dateReference,
-            @RequestParam(value = "interviewers") List<String> interviewers,
+            @RequestParam(value = "interviewers", defaultValue = "") List<String> interviewers,
             @RequestParam(value = "plateform") Plateform plateform) {
         LOGGER.warn("USER : " + request.getUserPrincipal().getName() + " | create scenario " + campaignId + " -> "
                 + campaignLabel);

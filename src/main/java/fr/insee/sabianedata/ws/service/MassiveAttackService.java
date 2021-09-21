@@ -86,7 +86,7 @@ public class MassiveAttackService {
 
                 try {
                         tempFolder = Files.createTempDirectory("folder-").toFile();
-                        tempScenariiFolder = new File(tempFolder.toString() + "/scenarii");
+                        tempScenariiFolder = new File(tempFolder, "scenarii");
                         File scenarii = resourceLoader.getResource("classpath:scenarii").getFile();
                         tempScenariiFolder.mkdirs();
                         FileUtils.copyDirectory(scenarii, tempScenariiFolder);
@@ -109,9 +109,9 @@ public class MassiveAttackService {
                 LOGGER.debug("Clean-up result : " + result);
         }
 
-        private void rollBackOnFail(List<String> ids) {
-                LOGGER.warn("NOTHING IMPLEMENTED YET, TIME TO CRAWL THE DATABASES!!");
-                // TODO : use DELETE P&Q endpoints
+        private void rollBackOnFail(List<String> ids, HttpServletRequest request, Plateform plateform) {
+                LOGGER.warn("Roll back : DELETE following campaigns {}", ids);
+                ids.stream().forEach(id -> deleteCampaign(request, plateform, id));
         }
 
         private TrainingCourse prepareTrainingCourse(String campaign, String scenario, String campaignLabel,
@@ -240,7 +240,6 @@ public class MassiveAttackService {
 
                 }
                 if (type.equals(ScenarioType.MANAGER)) {
-
                         Map<String, String> assignMap = assignements.stream().collect(
                                         Collectors.toMap(Assignement::getSurveyUnitId, Assignement::getInterviewerId));
                         newSurveyUnits = pearlSurveyUnits.stream()
@@ -358,7 +357,7 @@ public class MassiveAttackService {
                         LOGGER.error("Error during creation campaign :" + tc.getPearlCampaign().getCampaign());
                         LOGGER.error(e.getMessage());
                 }
-                LOGGER.info("Trying to post " + tc.getPearlSurveyUnits().size() + " surveyUnits");
+                LOGGER.info("Trying to post " + tc.getPearlSurveyUnits().size() + " pearl surveyUnits");
                 try {
                         pearlApiService.postUesToApi(request, tc.getPearlSurveyUnits(), plateform);
                         pearlSurveyUnitSuccess = true;
@@ -417,7 +416,7 @@ public class MassiveAttackService {
                         LOGGER.error("Error during creation of campaignDto :" + tc.getQueenCampaign().getId());
                         LOGGER.error(e.getMessage());
                 }
-                LOGGER.info("Trying to post " + tc.getQueenSurveyUnits().size() + " survey-units");
+                LOGGER.info("Trying to post " + tc.getQueenSurveyUnits().size() + " queen survey-units");
                 queenSurveyUnitsSuccess = tc.getQueenSurveyUnits().stream().parallel().filter(su -> {
                         try {
                                 queenApiService.postUeToApi(request, su, tc.getQueenCampaign(), plateform);
@@ -468,8 +467,8 @@ public class MassiveAttackService {
                 }).collect(Collectors.toList());
 
                 if (trainingCourses.contains(null)) {
-                        rollBackOnFail(trainingCourses.stream().map(tc -> tc.getCampaignId())
-                                        .collect(Collectors.toList()));
+                        rollBackOnFail(trainingCourses.stream().filter(tc -> tc != null).map(tc -> tc.getCampaignId())
+                                        .collect(Collectors.toList()), request, plateform);
                         return new ResponseModel(false, "Error when loading campaigns");
                 }
 
@@ -479,7 +478,7 @@ public class MassiveAttackService {
 
                 if (!success) {
                         rollBackOnFail(trainingCourses.stream().map(tc -> tc.getCampaignId())
-                                        .collect(Collectors.toList()));
+                                        .collect(Collectors.toList()), request, plateform);
                         return new ResponseModel(false, "Error when posting campaigns");
                 }
                 return new ResponseModel(true, "Training scenario generated");
