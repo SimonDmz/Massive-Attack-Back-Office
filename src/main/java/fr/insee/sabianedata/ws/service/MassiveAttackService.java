@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -148,8 +149,8 @@ public class MassiveAttackService {
                 OrganisationUnitDto orgaUnit = pearlApiService.getUserOrganizationUnit(request, plateform);
 
                 // 5 : make campaignId uniq => {campaign.id}_{OU}{date}
-                String newCampaignId = String.join("_", pearlCampaign.getCampaign(), orgaUnit.getOrganisationUnit(),
-                                referenceDate.toString());
+                String newCampaignId = String.join("_", type.toString().substring(0, 1), pearlCampaign.getCampaign(),
+                                orgaUnit.getOrganisationUnit(), referenceDate.toString());
 
                 pearlCampaign.setCampaign(newCampaignId);
                 pearlCampaign.setCampaignLabel(campaignLabel);
@@ -170,8 +171,8 @@ public class MassiveAttackService {
                                 assignements, type);
 
                 // 8 Queen : make uniq campaignId and questionnaireId
-                String newQueenCampaignId = String.join("_", queenCampaign.getId(), orgaUnit.getOrganisationUnit(),
-                                referenceDate.toString());
+                String newQueenCampaignId = String.join("_", type.toString().substring(0, 1), queenCampaign.getId(),
+                                orgaUnit.getOrganisationUnit(), referenceDate.toString());
                 queenCampaign.setId(newQueenCampaignId);
                 queenCampaign.setLabel(campaignLabel);
                 LOGGER.debug("Generated queen campaignId : " + newQueenCampaignId);
@@ -194,14 +195,35 @@ public class MassiveAttackService {
                 queenCampaign.setQuestionnaireIds((ArrayList<String>) newQuestionnaireIds);
 
                 // 9 queen : generate queen survey_units
-                // with unique ids for each interviewer
 
                 List<SurveyUnitDto> distributedQueenSurveyUnits = generateQueenSurveyUnits(campaign, referenceDate,
                                 queenSurveyUnits, interviewers, assignements, type, questionnaireIdMapping);
 
+                // labda can't update pearl and queen distributedSU while updating assignements
+                // AKA 'local variable in enclosing scope must be final or effectively final'
+                // solution is to map meaningfull Id with randomly generated Id
+
+                HashMap<String, String> anonymizedIds = new HashMap<>();
+
                 // update assignements
-                assignements = generateDistributedAssignements(distributedPearlSurveyUnits);
+                assignements = generateDistributedAssignements(distributedPearlSurveyUnits, anonymizedIds);
                 LOGGER.debug(assignements.size() + " assignements generated");
+
+                // replace meaningfull surveyUnitsIds with random generated ids
+                distributedPearlSurveyUnits = distributedPearlSurveyUnits.stream().map(su -> {
+                        su.setId(anonymizedIds.get(su.getId()));
+                        return su;
+                }).collect(Collectors.toList());
+
+                distributedQueenSurveyUnits = distributedQueenSurveyUnits.stream().map(su -> {
+                        su.setId(anonymizedIds.get(su.getId()));
+                        return su;
+                }).collect(Collectors.toList());
+
+                assignements = assignements.stream().map(assignement -> {
+                        assignement.setSurveyUnitId(anonymizedIds.get(assignement.getSurveyUnitId()));
+                        return assignement;
+                }).collect(Collectors.toList());
 
                 TrainingCourse trainingCourse = new TrainingCourse(distributedPearlSurveyUnits,
                                 distributedQueenSurveyUnits, pearlCampaign, queenCampaign, newQuestionnaireModels,
@@ -211,10 +233,14 @@ public class MassiveAttackService {
         }
 
         private List<Assignement> generateDistributedAssignements(
-                        List<fr.insee.sabianedata.ws.model.pearl.SurveyUnitDto> distributedPearlSurveyUnits) {
+                        List<fr.insee.sabianedata.ws.model.pearl.SurveyUnitDto> distributedPearlSurveyUnits,
+                        HashMap<String, String> anonymizedIds) {
+
                 return distributedPearlSurveyUnits.stream().map(su -> {
-                        String[] arr = su.getId().split("_");
-                        return new Assignement(su.getId(), arr[2]);
+                        String interviewer = su.getId().split("_")[2];
+                        String uniqId = UUID.randomUUID().toString().replace("-", "").substring(0, 14);
+                        anonymizedIds.put(su.getId(), uniqId);
+                        return new Assignement(su.getId(), interviewer);
                 }).collect(Collectors.toList());
 
         }
@@ -231,7 +257,6 @@ public class MassiveAttackService {
                         LOGGER.debug("Pearl survey-units generation : " + interviewers.size() + " interviewers / "
                                         + pearlSurveyUnits.size() + " survey-units");
                         newSurveyUnits = interviewers.stream().map(in -> pearlSurveyUnits.stream().map(su -> {
-                                LOGGER.debug("generating pearl su : " + su.getId() + " for " + in);
 
                                 return updatePearlSurveyUnit(su, in, pearlCampaign, campaign, orgaUnit, referenceDate);
                         }).collect(Collectors.toList())
