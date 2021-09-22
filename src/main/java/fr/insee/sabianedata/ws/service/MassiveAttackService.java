@@ -149,7 +149,7 @@ public class MassiveAttackService {
                 OrganisationUnitDto orgaUnit = pearlApiService.getUserOrganizationUnit(request, plateform);
 
                 // 5 : make campaignId uniq => {campaign.id}_{OU}{date}
-                String newCampaignId = String.join("_", type.toString().substring(0, 1), pearlCampaign.getCampaign(),
+                String newCampaignId = String.join("_", pearlCampaign.getCampaign(), type.toString().substring(0, 1),
                                 orgaUnit.getOrganisationUnit(), referenceDate.toString());
 
                 pearlCampaign.setCampaign(newCampaignId);
@@ -171,7 +171,7 @@ public class MassiveAttackService {
                                 assignements, type);
 
                 // 8 Queen : make uniq campaignId and questionnaireId
-                String newQueenCampaignId = String.join("_", type.toString().substring(0, 1), queenCampaign.getId(),
+                String newQueenCampaignId = String.join("_", queenCampaign.getId(), type.toString().substring(0, 1),
                                 orgaUnit.getOrganisationUnit(), referenceDate.toString());
                 queenCampaign.setId(newQueenCampaignId);
                 queenCampaign.setLabel(campaignLabel);
