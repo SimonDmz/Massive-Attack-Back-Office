@@ -3,8 +3,6 @@ package fr.insee.sabianedata.ws.model.massiveAttack;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import fr.insee.sabianedata.ws.model.pearl.OrganisationUnitDto;
-
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PearlUser {
 

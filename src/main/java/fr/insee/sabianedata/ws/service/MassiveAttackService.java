@@ -34,6 +34,7 @@ import org.springframework.web.client.RestClientException;
 
 import fr.insee.sabianedata.ws.config.Plateform;
 import fr.insee.sabianedata.ws.model.ResponseModel;
+import fr.insee.sabianedata.ws.model.massiveAttack.OrganisationUnitDto;
 import fr.insee.sabianedata.ws.model.massiveAttack.ScenarioType;
 import fr.insee.sabianedata.ws.model.massiveAttack.TrainingCourse;
 import fr.insee.sabianedata.ws.model.massiveAttack.TrainingScenario;
@@ -42,7 +43,6 @@ import fr.insee.sabianedata.ws.model.pearl.Campaign;
 import fr.insee.sabianedata.ws.model.pearl.ContactAttemptDto;
 import fr.insee.sabianedata.ws.model.pearl.ContactOutcomeDto;
 import fr.insee.sabianedata.ws.model.pearl.InterviewerDto;
-import fr.insee.sabianedata.ws.model.pearl.OrganisationUnitDto;
 import fr.insee.sabianedata.ws.model.pearl.SurveyUnitStateDto;
 import fr.insee.sabianedata.ws.model.pearl.Visibility;
 import fr.insee.sabianedata.ws.model.queen.CampaignDto;
@@ -150,7 +150,7 @@ public class MassiveAttackService {
 
                 // 5 : make campaignId uniq => {campaign.id}_{OU}{date}
                 String newCampaignId = String.join("_", pearlCampaign.getCampaign(), type.toString().substring(0, 1),
-                                orgaUnit.getOrganisationUnit(), referenceDate.toString());
+                                orgaUnit.getId(), referenceDate.toString());
 
                 pearlCampaign.setCampaign(newCampaignId);
                 pearlCampaign.setCampaignLabel(campaignLabel);
@@ -172,7 +172,7 @@ public class MassiveAttackService {
 
                 // 8 Queen : make uniq campaignId and questionnaireId
                 String newQueenCampaignId = String.join("_", queenCampaign.getId(), type.toString().substring(0, 1),
-                                orgaUnit.getOrganisationUnit(), referenceDate.toString());
+                                orgaUnit.getId(), referenceDate.toString());
                 queenCampaign.setId(newQueenCampaignId);
                 queenCampaign.setLabel(campaignLabel);
                 LOGGER.debug("Generated queen campaignId : " + newQueenCampaignId);
@@ -182,7 +182,7 @@ public class MassiveAttackService {
 
                 List<QuestionnaireModelDto> newQuestionnaireModels = questionnaireModels.stream().map(qm -> {
                         String newQuestionnaireModelId = String.join("_", qm.getIdQuestionnaireModel(),
-                                        orgaUnit.getOrganisationUnit(), referenceDate.toString());
+                                        orgaUnit.getId(), referenceDate.toString());
                         questionnaireIdMapping.put(qm.getIdQuestionnaireModel(), newQuestionnaireModelId);
                         qm.setIdQuestionnaireModel(newQuestionnaireModelId);
                         qm.setCampaignId(newQueenCampaignId);
@@ -285,7 +285,7 @@ public class MassiveAttackService {
                 fr.insee.sabianedata.ws.model.pearl.SurveyUnitDto newSu = new fr.insee.sabianedata.ws.model.pearl.SurveyUnitDto(
                                 initialSurveyUnit);
                 newSu.setCampaign(pearlCampaign.getCampaign());
-                newSu.setOrganizationUnitId(orgaUnit.getOrganisationUnit());
+                newSu.setOrganizationUnitId(orgaUnit.getId());
                 newSu.setId(String.join("_", initialSurveyUnit.getId(), campaign, interviewer,
                                 referenceDate.toString()));
 
@@ -355,7 +355,7 @@ public class MassiveAttackService {
 
                 List<Visibility> newVisibilities = previousVisibilities.stream()
                                 .map(v -> new Visibility(v, referenceDate)).map(v -> {
-                                        v.setOrganizationalUnit(orgaUnit.getOrganisationUnit());
+                                        v.setOrganizationalUnit(orgaUnit.getId());
                                         return v;
                                 }).collect(Collectors.toList());
 

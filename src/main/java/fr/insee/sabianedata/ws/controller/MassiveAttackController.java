@@ -20,9 +20,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import fr.insee.sabianedata.ws.config.Plateform;
 import fr.insee.sabianedata.ws.model.ResponseModel;
+import fr.insee.sabianedata.ws.model.massiveAttack.OrganisationUnitDto;
 import fr.insee.sabianedata.ws.model.massiveAttack.TrainingScenario;
 import fr.insee.sabianedata.ws.model.pearl.Campaign;
-import fr.insee.sabianedata.ws.model.pearl.OrganisationUnitDto;
 import fr.insee.sabianedata.ws.service.MassiveAttackService;
 import fr.insee.sabianedata.ws.service.PearlApiService;
 import io.swagger.v3.oas.annotations.Operation;

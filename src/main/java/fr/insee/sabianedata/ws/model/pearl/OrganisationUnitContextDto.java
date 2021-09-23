@@ -3,19 +3,16 @@ package fr.insee.sabianedata.ws.model.pearl;
 import java.util.ArrayList;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 @JacksonXmlRootElement(localName = "OrganisationUnit")
-public class OrganisationUnitDto {
+public class OrganisationUnitContextDto {
 
     @JacksonXmlProperty(localName = "OrganisationUnit")
-    @JsonProperty("id")
     private String organisationUnit;
     @JacksonXmlProperty(localName = "OrganisationUnitLabel")
-    @JsonProperty("label")
     private String organisationUnitLabel;
     @JacksonXmlProperty(localName = "Type")
     private String type;
@@ -68,7 +65,7 @@ public class OrganisationUnitDto {
         this.organisationUnitRef = organisationUnitRef;
     }
 
-    public OrganisationUnitDto() {
+    public OrganisationUnitContextDto() {
     }
 
     @Override

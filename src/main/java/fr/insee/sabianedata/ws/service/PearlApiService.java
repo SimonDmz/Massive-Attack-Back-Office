@@ -23,13 +23,14 @@ import org.springframework.web.client.RestTemplate;
 
 import fr.insee.sabianedata.ws.config.PearlProperties;
 import fr.insee.sabianedata.ws.config.Plateform;
+import fr.insee.sabianedata.ws.model.massiveAttack.OrganisationUnitDto;
 import fr.insee.sabianedata.ws.model.massiveAttack.PearlUser;
 import fr.insee.sabianedata.ws.model.pearl.Assignement;
 import fr.insee.sabianedata.ws.model.pearl.Campaign;
 import fr.insee.sabianedata.ws.model.pearl.CampaignDto;
 import fr.insee.sabianedata.ws.model.pearl.GeoLocationDto;
 import fr.insee.sabianedata.ws.model.pearl.InterviewerDto;
-import fr.insee.sabianedata.ws.model.pearl.OrganisationUnitDto;
+import fr.insee.sabianedata.ws.model.pearl.OrganisationUnitContextDto;
 import fr.insee.sabianedata.ws.model.pearl.SurveyUnitDto;
 
 @Service
@@ -92,8 +93,8 @@ public class PearlApiService {
                 String.class);
     }
 
-    public ResponseEntity<?> postContextToApi(HttpServletRequest request, List<OrganisationUnitDto> organisationUnits,
-            Plateform plateform) {
+    public ResponseEntity<?> postContextToApi(HttpServletRequest request,
+            List<OrganisationUnitContextDto> organisationUnits, Plateform plateform) {
         LOGGER.info("Create Context (organisationUnits)");
         final String apiUri = pearlProperties.getHostFromEnum(plateform) + "/api/organization-units";
         HttpHeaders httpHeaders = createSimpleHeadersAuth(request);
