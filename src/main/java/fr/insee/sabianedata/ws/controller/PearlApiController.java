@@ -125,9 +125,10 @@ public class PearlApiController {
         File fodsInput = new File(folderTemp.toFile(), in.getOriginalFilename());
         FileUtils.copyInputStreamToFile(in.getInputStream(), fodsInput);
         boolean success = false;
-        List<OrganisationUnitContextDto> organisationUnitDtos = pearlExtractEntities.getPearlOrganisationUnitsFromFods(fodsInput);
+        List<OrganisationUnitContextDto> organisationUnitDtos = pearlExtractEntities
+                .getPearlOrganisationUnitsFromFods(fodsInput);
         try {
-                
+
             pearlApiService.postContextToApi(request, organisationUnitDtos, plateform);
             success = true;
         } catch (Exception e) {
@@ -165,6 +166,16 @@ public class PearlApiController {
         ResponseModel responseModel = new ResponseModel(success, String.format("Create geoLocations : %b", success));
 
         return success ? ResponseEntity.ok().body(responseModel) : ResponseEntity.badRequest().body(responseModel);
+    }
+
+    @Operation(summary = "Healthcheck, check if api is alive")
+    @GetMapping(path = "/healthcheck")
+    public ResponseEntity<Object> healthCheck(HttpServletRequest request,
+            @RequestParam(value = "plateform") Plateform plateform) {
+        LOGGER.debug("HealthCheck");
+        boolean pearlIsHealthy = pearlApiService.healthCheck(request, plateform);
+        return pearlIsHealthy ? ResponseEntity.ok().build() : ResponseEntity.badRequest().build();
+
     }
 
 }

@@ -48,20 +48,15 @@ public class QueenApiController {
     @Autowired
     private QueenApiService queenApiService;
 
-
-    @Operation(summary = "Insertion de données massives d'une campagne pour Queen",
-            description = "- **campaign** : nom de la campagne à laquelle seront associées les unités enquêtées générées, \n"
-                    + "- **questionnaireId** : nom du modèle de questionnaire auquel seront associées les unités enquêtées générées, \n"
-                    + "- **occurrences** : nombre d'unités enquêtées à générer  \n"
-                    + "- **index** : valeur initiale de l'identifiant  \n\n"
-    )
+    @Operation(summary = "Insertion de données massives d'une campagne pour Queen", description = "- **campaign** : nom de la campagne à laquelle seront associées les unités enquêtées générées, \n"
+            + "- **questionnaireId** : nom du modèle de questionnaire auquel seront associées les unités enquêtées générées, \n"
+            + "- **occurrences** : nombre d'unités enquêtées à générer  \n"
+            + "- **index** : valeur initiale de l'identifiant  \n\n")
     @PostMapping(value = "integrate-generated-data", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ReportingModel> generateAndIntegrateData(
-            HttpServletRequest request,
+    public ResponseEntity<ReportingModel> generateAndIntegrateData(HttpServletRequest request,
             @RequestParam(value = "campaign") String campaign,
             @RequestParam(value = "questionnaireId") String questionnaireId,
-            @RequestParam(value = "occurrences") int occurrences,
-            @RequestParam(value = "index") int index,
+            @RequestParam(value = "occurrences") int occurrences, @RequestParam(value = "index") int index,
             @RequestParam(value = "plateform") Plateform plateform) throws Exception {
 
         LOGGER.info("Trying to generate and integrate {} occurrences for campaign {}", occurrences, campaign);
@@ -82,10 +77,11 @@ public class QueenApiController {
             SurveyUnitDto suDto = new SurveyUnitDto(su);
             suDto.setId(campaign + q);
             LOGGER.info("su id : {}", suDto.getId());
-            try{
+            try {
                 queenApiService.postUeToApi(request, suDto, campaignDto, plateform).getStatusCode();
                 reporting.addSuccess(suDto.getId());
-                LOGGER.info("Successfully generated and integrated survey unit with id {} for campaign {}", suDto.getId(), campaign);
+                LOGGER.info("Successfully generated and integrated survey unit with id {} for campaign {}",
+                        suDto.getId(), campaign);
             } catch (Exception e) {
                 reporting.addFailure(suDto.getId());
                 LOGGER.error("A problem occurred trying to integrate survey unit with id {}", suDto);
@@ -95,15 +91,12 @@ public class QueenApiController {
         return ResponseEntity.ok().body(reporting);
     }
 
-    @Operation(summary = "Création d'une campagne pour Queen",
-            description = "- **campaign** : le fichier .fods, \n"
-                    + "- **dataZip** : une archive .zip contenant les fichiers au format json (référerencés dans le fichier .fods)  \n\n"
-                    + "Un exemple de ces fichiers se trouve dans la partie Exemple du swagger")
+    @Operation(summary = "Création d'une campagne pour Queen", description = "- **campaign** : le fichier .fods, \n"
+            + "- **dataZip** : une archive .zip contenant les fichiers au format json (référerencés dans le fichier .fods)  \n\n"
+            + "Un exemple de ces fichiers se trouve dans la partie Exemple du swagger")
     @PostMapping(value = "full-campaign", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ResponseModel> createFullCampaign(
-            HttpServletRequest request,
-            @RequestPart(value = "campaign") MultipartFile in,
-            @RequestPart(value = "dataZip") MultipartFile dataZip,
+    public ResponseEntity<ResponseModel> createFullCampaign(HttpServletRequest request,
+            @RequestPart(value = "campaign") MultipartFile in, @RequestPart(value = "dataZip") MultipartFile dataZip,
             @RequestParam(value = "plateform") Plateform plateform) throws Exception {
 
         Path folderTemp = Files.createTempDirectory("folder-");
@@ -116,8 +109,10 @@ public class QueenApiController {
         FilesCleanerUtils.unzip(surveyUnitsDataZip);
 
         CampaignDto campaignDto = queenExtractEntities.getQueenCampaignFromFods(fodsInput);
-        List<QuestionnaireModelDto> questionnaireModelDtos = queenExtractEntities.getQueenQuestionnaireModelsDtoFromFods(fodsInput, folderTemp.toString());
-        List<NomenclatureDto> nomenclatureDtos = queenExtractEntities.getQueenNomenclaturesDtoFromFods(fodsInput, folderTemp.toString());
+        List<QuestionnaireModelDto> questionnaireModelDtos = queenExtractEntities
+                .getQueenQuestionnaireModelsDtoFromFods(fodsInput, folderTemp.toString());
+        List<NomenclatureDto> nomenclatureDtos = queenExtractEntities.getQueenNomenclaturesDtoFromFods(fodsInput,
+                folderTemp.toString());
         List<SurveyUnitDto> sus = queenExtractEntities.getQueenSurveyUnitsFromFods(fodsInput, folderTemp.toString());
 
         long nomenclaturesSuccess;
@@ -158,7 +153,7 @@ public class QueenApiController {
             LOGGER.error(e.getMessage());
         }
         LOGGER.info("Trying to post " + sus.size() + " survey-units");
-        surveyUnitsSuccess = sus.stream().parallel().filter( su -> {
+        surveyUnitsSuccess = sus.stream().parallel().filter(su -> {
             try {
                 queenApiService.postUeToApi(request, su, campaignDto, plateform);
                 return true;
@@ -166,33 +161,26 @@ public class QueenApiController {
                 LOGGER.error("Error during creation of surveyUnit :" + su.getId());
                 LOGGER.error(e.getMessage());
                 return false;
-            }}
-        ).count();
+            }
+        }).count();
 
-        boolean success = campaignSuccess
-                && nomenclaturesSuccess == nomenclatureDtos.size()
-                && questionnairesSuccess == questionnaireModelDtos.size()
-                && surveyUnitsSuccess == sus.size();
-        String message = String.format(
-                "Nomenclatures: %d/%d, Questionnaires: %d/%d, SurveyUnits: %d/%d, Campaign: %b",
-                nomenclaturesSuccess, nomenclatureDtos.size(),
-                questionnairesSuccess, questionnaireModelDtos.size(),
+        boolean success = campaignSuccess && nomenclaturesSuccess == nomenclatureDtos.size()
+                && questionnairesSuccess == questionnaireModelDtos.size() && surveyUnitsSuccess == sus.size();
+        String message = String.format("Nomenclatures: %d/%d, Questionnaires: %d/%d, SurveyUnits: %d/%d, Campaign: %b",
+                nomenclaturesSuccess, nomenclatureDtos.size(), questionnairesSuccess, questionnaireModelDtos.size(),
                 surveyUnitsSuccess, sus.size(), campaignSuccess);
         ResponseModel responseModel = new ResponseModel(success, message);
 
         return success ? ResponseEntity.ok().body(responseModel) : ResponseEntity.badRequest().body(responseModel);
     }
 
-    @Operation(summary = "Transform operation described in fods and post ZIP file to Queen Api.",
-            description = "- **campaign** : le fichier .fods, \n"
-                    + "- **dataZip** : une archive .zip contenant les fichiers au format json (référerencés dans le fichier .fods)  \n\n"
-                    + "Un exemple de ces fichiers se trouve dans la partie Exemple du swagger")
+    @Operation(summary = "Transform operation described in fods and post ZIP file to Queen Api.", description = "- **campaign** : le fichier .fods, \n"
+            + "- **dataZip** : une archive .zip contenant les fichiers au format json (référerencés dans le fichier .fods)  \n\n"
+            + "Un exemple de ces fichiers se trouve dans la partie Exemple du swagger")
     @Deprecated
     @PostMapping(value = "full-campaign-2", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ResponseModel> createFullCampaignWithSinglePost(
-            HttpServletRequest request,
-            @RequestPart(value = "campaign") MultipartFile in,
-            @RequestPart(value = "dataZip") MultipartFile dataZip,
+    public ResponseEntity<ResponseModel> createFullCampaignWithSinglePost(HttpServletRequest request,
+            @RequestPart(value = "campaign") MultipartFile in, @RequestPart(value = "dataZip") MultipartFile dataZip,
             @RequestParam(value = "plateform") Plateform plateform) throws Exception {
 
         Path folderTemp = Files.createTempDirectory("folder-");
@@ -214,7 +202,8 @@ public class QueenApiController {
         File questionnaireModels = queenTransformService.getQueenQuestionnaires(fodsInput);
         File nomenclatures = queenTransformService.getQueenNomenclatures(fodsInput);
 
-        File archive = FileArchiver.zipFilesForCreateQueenCampaign(folderTemp.toString(), Arrays.asList(campaignFile, questionnaireModels, nomenclatures));
+        File archive = FileArchiver.zipFilesForCreateQueenCampaign(folderTemp.toString(),
+                Arrays.asList(campaignFile, questionnaireModels, nomenclatures));
         boolean success = false;
         LOGGER.info("Trying to post full campaign");
         try {
@@ -227,5 +216,15 @@ public class QueenApiController {
         ResponseModel responseModel = new ResponseModel(success, success ? "Ok !" : "Ko !");
 
         return success ? ResponseEntity.ok().body(responseModel) : ResponseEntity.badRequest().body(responseModel);
+    }
+
+    @Operation(summary = "Healthcheck, check if api is alive")
+    @GetMapping(path = "/healthcheck")
+    public ResponseEntity<Object> healthCheck(HttpServletRequest request,
+            @RequestParam(value = "plateform") Plateform plateform) {
+        LOGGER.debug("HealthCheck");
+        boolean queenIsHealthy = queenApiService.healthCheck(request, plateform);
+        return queenIsHealthy ? ResponseEntity.ok().build() : ResponseEntity.badRequest().build();
+
     }
 }
