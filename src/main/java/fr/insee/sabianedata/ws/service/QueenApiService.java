@@ -102,4 +102,14 @@ public class QueenApiService {
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         return restTemplate.exchange(apiUri, HttpMethod.DELETE, new HttpEntity<>(id, httpHeaders), String.class);
     }
+
+    public boolean healthCheck(HttpServletRequest request, Plateform plateform) {
+        final String apiUri = queenProperties.getHostFromEnum(plateform) + "/api/healthcheck";
+        HttpHeaders httpHeaders = createSimpleHeadersAuth(request);
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+        return restTemplate.exchange(apiUri, HttpMethod.GET, new HttpEntity<>(httpHeaders), String.class)
+                .getStatusCode().equals(HttpStatus.OK);
+
+    }
+
 }

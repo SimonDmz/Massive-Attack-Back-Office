@@ -136,11 +136,11 @@ public class PearlApiService {
         HttpHeaders httpHeaders = createSimpleHeadersAuth(request);
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         LOGGER.info("Trying to get campaigns list");
-        ResponseEntity<Campaign[]> userResponse = restTemplate.exchange(apiUri, HttpMethod.GET,
+        ResponseEntity<Campaign[]> campaignsResponse = restTemplate.exchange(apiUri, HttpMethod.GET,
                 new HttpEntity<>(httpHeaders), Campaign[].class);
-        if (userResponse.getStatusCode() == HttpStatus.OK) {
+        if (campaignsResponse.getStatusCode() == HttpStatus.OK) {
             LOGGER.info("API call for campaigns is OK");
-            return Arrays.asList(userResponse.getBody());
+            return Arrays.asList(campaignsResponse.getBody());
         } else {
             LOGGER.warn("API call not OK");
         }
@@ -153,6 +153,15 @@ public class PearlApiService {
         HttpHeaders httpHeaders = createSimpleHeadersAuth(request);
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         return restTemplate.exchange(apiUri, HttpMethod.DELETE, new HttpEntity<>(id, httpHeaders), String.class);
+    }
+
+    public boolean healthCheck(HttpServletRequest request, Plateform plateform) {
+        final String apiUri = pearlProperties.getHostFromEnum(plateform) + "/api/healthcheck";
+        HttpHeaders httpHeaders = createSimpleHeadersAuth(request);
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+        return restTemplate.exchange(apiUri, HttpMethod.GET, new HttpEntity<>(httpHeaders), String.class)
+                .getStatusCode().equals(HttpStatus.OK);
+
     }
 
 }
