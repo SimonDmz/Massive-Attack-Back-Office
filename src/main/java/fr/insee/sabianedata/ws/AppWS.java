@@ -49,7 +49,8 @@ public class AppWS extends SpringBootServletInitializer {
         StreamSupport.stream(sources.spliterator(), false).filter(ps -> ps instanceof EnumerablePropertySource)
                 .map(ps -> ((EnumerablePropertySource<?>) ps).getPropertyNames()).flatMap(Arrays::stream).distinct()
                 .filter(prop -> !(prop.contains("credentials") || prop.contains("password")))
-                .filter(prop -> prop.startsWith("fr.insee") || prop.startsWith("logging") || prop.startsWith("spring"))
+                .filter(prop -> prop.startsWith("fr.insee") || prop.startsWith("logging") || prop.startsWith("spring")
+                        || prop.startsWith("keycloak"))
                 .sorted().forEach(prop -> LOGGER.info("{}: {}", prop, env.getProperty(prop)));
         LOGGER.info("===========================================================================");
         LOGGER.info("Available CPU : " + Runtime.getRuntime().availableProcessors());
