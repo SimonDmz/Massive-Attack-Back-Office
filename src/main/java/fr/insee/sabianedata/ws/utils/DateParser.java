@@ -36,7 +36,7 @@ public class DateParser {
      */
     public static Long fixedDateParse(String input) throws IllegalArgumentException {
         if (isRelativeDateParsable(input)) {
-            LOGGER.warn("Relative date format  detected -> date is parsed with now as referenceDate");
+            LOGGER.debug("Relative date format  detected -> date is parsed with now as referenceDate");
             return relativeDateParse(input, new Date().getTime());
         }
         if (!isDmyParsable(input))
