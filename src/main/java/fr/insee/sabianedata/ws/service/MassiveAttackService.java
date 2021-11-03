@@ -44,6 +44,7 @@ import fr.insee.sabianedata.ws.model.pearl.ContactAttemptDto;
 import fr.insee.sabianedata.ws.model.pearl.ContactOutcomeDto;
 import fr.insee.sabianedata.ws.model.pearl.InterviewerDto;
 import fr.insee.sabianedata.ws.model.pearl.SurveyUnitStateDto;
+import fr.insee.sabianedata.ws.model.pearl.UserDto;
 import fr.insee.sabianedata.ws.model.pearl.Visibility;
 import fr.insee.sabianedata.ws.model.queen.CampaignDto;
 import fr.insee.sabianedata.ws.model.queen.NomenclatureDto;
@@ -471,10 +472,12 @@ public class MassiveAttackService {
                         HttpServletRequest request, Long referenceDate, Plateform plateform,
                         List<String> interviewers) {
 
-                boolean interviewersCheck = checkInterviewers(interviewers, request, plateform);
-
-                if (!interviewersCheck) {
-                        new ResponseModel(false, "Error when checking interviewers");
+                ScenarioType type = trainingScenarioService.getScenarioType(tempScenariiFolder, scenarioId);
+                if (type == ScenarioType.INTERVIEWER && !checkInterviewers(interviewers, request, plateform)) {
+                        return new ResponseModel(false, "Error when checking interviewers");
+                }
+                if (type == ScenarioType.MANAGER && !checkUsers(interviewers, request, plateform)) {
+                        return new ResponseModel(false, "Error when checking users");
                 }
 
                 TrainingScenario scenar = trainingScenarioService.getTrainingScenario(tempScenariiFolder, scenarioId);
@@ -530,6 +533,42 @@ public class MassiveAttackService {
                                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
                         } catch (RestClientException e) {
                                 LOGGER.info("Interviewer " + inter + " already present.");
+                                LOGGER.debug(e.getMessage());
+
+                                return new ResponseEntity<>(HttpStatus.OK);
+                        }
+
+                }).filter(response -> !response.getStatusCode().is2xxSuccessful()).collect(Collectors.toList())
+                                .size() == 0;
+
+        }
+
+        public boolean checkUsers(List<String> users, HttpServletRequest request, Plateform plateform) {
+
+                OrganisationUnitDto ou = pearlApiService.getUserOrganizationUnit(request, plateform);
+                if (ou == null) {
+                        LOGGER.warn("Can't get organizationUnit of caller");
+                        return false;
+                }
+
+                UserDto validUser = new UserDto();
+                ArrayList<UserDto> userList = new ArrayList<>();
+                userList.add(validUser);
+                validUser.setFirstName("FirstName");
+                validUser.setLastName("LastName");
+                return users.stream().map(user -> {
+                        validUser.setId(user);
+                        try {
+                                ResponseEntity<?> postResponse = pearlApiService.postUsersToApi(request, userList,
+                                                ou.getId(), plateform);
+                                LOGGER.info("User " + user + " created.");
+                                return postResponse;
+                        } catch (JsonProcessingException e) {
+                                LOGGER.warn("Error when creating user " + user);
+                                LOGGER.error(e.getMessage());
+                                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+                        } catch (RestClientException e) {
+                                LOGGER.info("User " + user + " already present.");
                                 LOGGER.debug(e.getMessage());
 
                                 return new ResponseEntity<>(HttpStatus.OK);

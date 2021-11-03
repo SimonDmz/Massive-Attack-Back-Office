@@ -1,6 +1,5 @@
 package fr.insee.sabianedata.ws.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import fr.insee.sabianedata.ws.config.Plateform;
 import fr.insee.sabianedata.ws.model.ReportingModel;
@@ -17,7 +16,6 @@ import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,7 +25,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.Clock;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;

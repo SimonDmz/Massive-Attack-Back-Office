@@ -15,8 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 
+import fr.insee.sabianedata.ws.model.massiveAttack.ScenarioType;
 import fr.insee.sabianedata.ws.model.massiveAttack.TrainingScenario;
-import fr.insee.sabianedata.ws.model.pearl.Campaign;
 import fr.insee.sabianedata.ws.model.pearl.CampaignDto;
 
 @Service
@@ -65,9 +65,18 @@ public class TrainingScenarioService {
 
     }
 
-    public List<Campaign> getCampaignsFromXml() {
-        return null;
-
+    public ScenarioType getScenarioType(File scenariiFolder, String tsId) {
+        try {
+            File scenarioDirectory = new File(scenariiFolder, tsId);
+            File infoFile = new File(scenarioDirectory, "info.json");
+            ObjectMapper objectMapper = new ObjectMapper();
+            TrainingScenario ts = objectMapper.readValue(infoFile, TrainingScenario.class);
+            return ts.getType();
+        } catch (Exception e) {
+            LOGGER.warn("Error when getting scenario type " + tsId);
+            LOGGER.warn(e.getMessage());
+            return null;
+        }
     }
 
     public List<TrainingScenario> getTrainingScenarii(File scenariiFolder) throws Exception {

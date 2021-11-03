@@ -3,6 +3,7 @@ package fr.insee.sabianedata.ws.service;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -32,6 +33,7 @@ import fr.insee.sabianedata.ws.model.pearl.GeoLocationDto;
 import fr.insee.sabianedata.ws.model.pearl.InterviewerDto;
 import fr.insee.sabianedata.ws.model.pearl.OrganisationUnitContextDto;
 import fr.insee.sabianedata.ws.model.pearl.SurveyUnitDto;
+import fr.insee.sabianedata.ws.model.pearl.UserDto;
 
 @Service
 public class PearlApiService {
@@ -81,6 +83,16 @@ public class PearlApiService {
 
         return restTemplate.exchange(apiUri, HttpMethod.POST, new HttpEntity<>(interviewers, httpHeaders),
                 String.class);
+    }
+
+    public ResponseEntity<?> postUsersToApi(HttpServletRequest request, List<UserDto> users, String OuId,
+            Plateform plateform) throws JsonProcessingException {
+        LOGGER.info("Try to create users with id {}", users.stream().map(u -> u.getId()).collect(Collectors.toList()));
+        final String apiUri = pearlProperties.getHostFromEnum(plateform) + "/api/organization-unit/" + OuId + "/users";
+        HttpHeaders httpHeaders = createSimpleHeadersAuth(request);
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+
+        return restTemplate.exchange(apiUri, HttpMethod.POST, new HttpEntity<>(users, httpHeaders), String.class);
     }
 
     public ResponseEntity<?> postAssignementsToApi(HttpServletRequest request, List<Assignement> assignements,
