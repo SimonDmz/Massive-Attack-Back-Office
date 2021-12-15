@@ -145,7 +145,6 @@ public class MassiveAttackService {
                                 .getPearlSurveyUnitsFromFods(pearlFodsInput);
                 List<Assignement> assignements = pearlExtractEntities.getAssignementsFromFods(pearlFodsInput);
 
-                LOGGER.debug("XML extractions completed");
                 // 4 : get user organisationUnit
                 OrganisationUnitDto orgaUnit = pearlApiService.getUserOrganizationUnit(request, plateform);
 
@@ -155,10 +154,8 @@ public class MassiveAttackService {
 
                 pearlCampaign.setCampaign(newCampaignId);
                 pearlCampaign.setCampaignLabel(campaignLabel);
-                LOGGER.debug("Generating new campaignId = " + newCampaignId);
 
                 // 6 : change visibility with user OU only and
-                LOGGER.debug("Updating visibilities : " + pearlCampaign.getVisibilities().size() + " visibilities");
 
                 ArrayList<Visibility> visibilities = updatingVisibilities(referenceDate, orgaUnit,
                                 pearlCampaign.getVisibilities());
@@ -176,7 +173,6 @@ public class MassiveAttackService {
                                 orgaUnit.getId(), referenceDate.toString());
                 queenCampaign.setId(newQueenCampaignId);
                 queenCampaign.setLabel(campaignLabel);
-                LOGGER.debug("Generated queen campaignId : " + newQueenCampaignId);
 
                 // map oldQuestId to new questModels
                 HashMap<String, String> questionnaireIdMapping = new HashMap<>();
@@ -208,7 +204,6 @@ public class MassiveAttackService {
 
                 // update assignements
                 assignements = generateDistributedAssignements(distributedPearlSurveyUnits, anonymizedIds);
-                LOGGER.debug(assignements.size() + " assignements generated");
 
                 // replace meaningfull surveyUnitsIds with random generated ids
                 distributedPearlSurveyUnits = distributedPearlSurveyUnits.stream().map(su -> {
@@ -255,8 +250,6 @@ public class MassiveAttackService {
                 List<fr.insee.sabianedata.ws.model.pearl.SurveyUnitDto> newSurveyUnits = new ArrayList<>();
 
                 if (type.equals(ScenarioType.INTERVIEWER)) {
-                        LOGGER.debug("Pearl survey-units generation : " + interviewers.size() + " interviewers / "
-                                        + pearlSurveyUnits.size() + " survey-units");
                         newSurveyUnits = interviewers.stream().map(in -> pearlSurveyUnits.stream().map(su -> {
 
                                 return updatePearlSurveyUnit(su, in, pearlCampaign, campaign, orgaUnit, referenceDate);
@@ -328,8 +321,6 @@ public class MassiveAttackService {
         private List<SurveyUnitDto> generateQueenSurveyUnits(String campaign, Long referenceDate,
                         List<SurveyUnitDto> queenSurveyUnits, List<String> interviewers, List<Assignement> assignements,
                         ScenarioType type, HashMap<String, String> questionnaireIdMapping) {
-                LOGGER.debug("Queen survey-units generation : " + interviewers.size() + " interviewers / "
-                                + queenSurveyUnits.size() + " survey-units");
                 List<SurveyUnitDto> newSurveyUnits = new ArrayList<>();
                 if (type.equals(ScenarioType.INTERVIEWER)) {
                         newSurveyUnits = interviewers.stream().map(in -> queenSurveyUnits.stream().map(sudto -> {
@@ -580,7 +571,6 @@ public class MassiveAttackService {
         }
 
         public ResponseEntity<String> deleteCampaign(HttpServletRequest request, Plateform plateform, String id) {
-                LOGGER.debug("delete campaign : id = " + id);
                 List<Campaign> pearlCampaigns = pearlApiService.getCampaigns(request, plateform);
                 if (pearlCampaigns.stream().filter(camp -> camp.getId().equals(id)).count() == 0) {
                         LOGGER.error("DELETE campaign with id {} resulting in 404 because it does not exists", id);

@@ -28,7 +28,6 @@ import fr.insee.sabianedata.ws.service.QueenApiService;
 @RestController
 @RequestMapping(path = "/api")
 public class HealthCheckController {
-	private static final Logger LOGGER = LoggerFactory.getLogger(HealthCheckController.class);
 
 	@Autowired
 	private PearlApiService pearlApiService;
@@ -40,7 +39,6 @@ public class HealthCheckController {
 	@GetMapping(path = "/healthcheck")
 	public ResponseEntity<ResponseModel> healthCheck(HttpServletRequest request,
 			@RequestParam(value = "plateform") Plateform plateform) {
-		LOGGER.debug("HealthCheck");
 		boolean pearlApiIsHealthy = pearlApiService.healthCheck(request, plateform);
 		boolean queenApiIsHealthy = queenApiService.healthCheck(request, plateform);
 		String responseMessage = String.format("Pearl-API : %b - Queen-API : %b", pearlApiIsHealthy, queenApiIsHealthy);

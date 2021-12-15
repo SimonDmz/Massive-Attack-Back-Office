@@ -8,9 +8,6 @@ import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * Utilitary class to parse fixed and relative dates.
  * <p>
@@ -18,8 +15,6 @@ import org.slf4j.LoggerFactory;
  * forget to catch it
  */
 public class DateParser {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(DateParser.class);
 
     private static final String dmyDateFormat = "dd/MM/yyyy HH:mm:ss";
     private static final String dmyRegexp = "^\\d{2}\\/\\d{2}\\/\\d{4} \\d{2}:\\d{2}:\\d{2}$";
@@ -36,7 +31,6 @@ public class DateParser {
      */
     public static Long fixedDateParse(String input) throws IllegalArgumentException {
         if (isRelativeDateParsable(input)) {
-            LOGGER.debug("Relative date format  detected -> date is parsed with now as referenceDate");
             return relativeDateParse(input, new Date().getTime());
         }
         if (!isDmyParsable(input))
