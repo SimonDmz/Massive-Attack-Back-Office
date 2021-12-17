@@ -1,13 +1,12 @@
 package fr.insee.sabianedata.ws.service;
 
-import fr.insee.sabianedata.ws.model.queen.SurveyUnit;
-import fr.insee.sabianedata.ws.model.queen.SurveyUnitDto;
+import java.io.File;
+
+import org.springframework.stereotype.Service;
+
 import fr.insee.sabianedata.ws.service.xsl.GeoLocationsTransformer;
 import fr.insee.sabianedata.ws.service.xsl.QueenCampaignTransformer;
 import fr.insee.sabianedata.ws.service.xsl.SampleProcessingXMLTransformer;
-import org.springframework.stereotype.Service;
-
-import java.io.File;
 
 @Service
 public class QueenTransformService {

@@ -2,10 +2,7 @@ package fr.insee.sabianedata.ws.controller;
 
 import java.io.File;
 import java.nio.file.Files;
-import java.util.Arrays;
 
-import fr.insee.sabianedata.ws.Constants;
-import fr.insee.sabianedata.ws.utils.FileArchiver;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
+import fr.insee.sabianedata.ws.Constants;
+import fr.insee.sabianedata.ws.utils.FileArchiver;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 

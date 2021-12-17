@@ -8,14 +8,14 @@ import java.util.ArrayList;
 @JacksonXmlRootElement(localName = "Context")
 public class Context {
 
-    @JacksonXmlElementWrapper(localName="OrganisationUnits")
-    private ArrayList<OrganisationUnitDto> organisationUnits;
+    @JacksonXmlElementWrapper(localName = "OrganisationUnits")
+    private ArrayList<OrganisationUnitContextDto> organisationUnits;
 
-    public ArrayList<OrganisationUnitDto> getOrganisationUnits() {
+    public ArrayList<OrganisationUnitContextDto> getOrganisationUnits() {
         return organisationUnits;
     }
 
-    public void setOrganisationUnits(ArrayList<OrganisationUnitDto> organisationUnits) {
+    public void setOrganisationUnits(ArrayList<OrganisationUnitContextDto> organisationUnits) {
         this.organisationUnits = organisationUnits;
     }
 

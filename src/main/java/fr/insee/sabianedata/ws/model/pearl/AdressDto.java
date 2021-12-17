@@ -1,6 +1,5 @@
 package fr.insee.sabianedata.ws.model.pearl;
 
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
@@ -8,26 +7,26 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 @JacksonXmlRootElement(localName = "Adress")
 public class AdressDto {
 
-    @JacksonXmlProperty(localName="L1")
-    @JsonProperty(value = "L1")
+    @JacksonXmlProperty(localName = "L1")
+    @JsonProperty(value = "l1")
     private String L1;
-    @JsonProperty(value = "L2")
-    @JacksonXmlProperty(localName="L2")
+    @JsonProperty(value = "l2")
+    @JacksonXmlProperty(localName = "L2")
     private String L2;
-    @JsonProperty(value = "L3")
-    @JacksonXmlProperty(localName="L3")
+    @JsonProperty(value = "l3")
+    @JacksonXmlProperty(localName = "L3")
     private String L3;
-    @JsonProperty(value = "L4")
-    @JacksonXmlProperty(localName="L4")
+    @JsonProperty(value = "l4")
+    @JacksonXmlProperty(localName = "L4")
     private String L4;
-    @JsonProperty(value = "L5")
-    @JacksonXmlProperty(localName="L5")
+    @JsonProperty(value = "l5")
+    @JacksonXmlProperty(localName = "L5")
     private String L5;
-    @JsonProperty(value = "L6")
-    @JacksonXmlProperty(localName="L6")
+    @JsonProperty(value = "l6")
+    @JacksonXmlProperty(localName = "L6")
     private String L6;
-    @JsonProperty(value = "L7")
-    @JacksonXmlProperty(localName="L7")
+    @JsonProperty(value = "l7")
+    @JacksonXmlProperty(localName = "L7")
     private String L7;
 
     public String getL1() {

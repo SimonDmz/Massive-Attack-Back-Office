@@ -20,28 +20,28 @@ public class PearlExtractEntities {
         File file = pearlTransformService.getGeoLocations(fods);
         XmlMapper xmlMapper = new XmlMapper();
         GeoLocations geoLocations = xmlMapper.readValue(file, GeoLocations.class);
-        return geoLocations.getGeoLocations()!=null ? geoLocations.getGeoLocations() : new ArrayList<>();
+        return geoLocations.getGeoLocations() != null ? geoLocations.getGeoLocations() : new ArrayList<>();
     }
 
     public List<SurveyUnitDto> getPearlSurveyUnitsFromFods(File fods) throws Exception {
         File file = pearlTransformService.getPearlSurveyUnits(fods);
         XmlMapper xmlMapper = new XmlMapper();
         SurveyUnits surveyUnits = xmlMapper.readValue(file, SurveyUnits.class);
-        return surveyUnits.getSurveyUnits()!=null ? surveyUnits.getSurveyUnits() : new ArrayList<>();
+        return surveyUnits.getSurveyUnits() != null ? surveyUnits.getSurveyUnits() : new ArrayList<>();
     }
 
     public List<InterviewerDto> getPearlInterviewersFromFods(File fods) throws Exception {
         File file = pearlTransformService.getPearlInterviewers(fods);
         XmlMapper xmlMapper = new XmlMapper();
-        InterviewersDto interviewers = xmlMapper.readValue(file,InterviewersDto.class);
-        return interviewers.getInterviewers()!=null ? interviewers.getInterviewers() : new ArrayList<>();
+        InterviewersDto interviewers = xmlMapper.readValue(file, InterviewersDto.class);
+        return interviewers.getInterviewers() != null ? interviewers.getInterviewers() : new ArrayList<>();
     }
 
-    public List<OrganisationUnitDto> getPearlOrganisationUnitsFromFods(File fods)throws Exception {
+    public List<OrganisationUnitContextDto> getPearlOrganisationUnitsFromFods(File fods) throws Exception {
         File file = pearlTransformService.getPearlContext(fods);
         XmlMapper xmlMapper = new XmlMapper();
         Context context = xmlMapper.readValue(file, Context.class);
-        return context.getOrganisationUnits()!=null ? context.getOrganisationUnits() : new ArrayList<>();
+        return context.getOrganisationUnits() != null ? context.getOrganisationUnits() : new ArrayList<>();
     }
 
     public CampaignDto getPearlCampaignFromFods(File fods) throws Exception {
@@ -50,7 +50,8 @@ public class PearlExtractEntities {
         XmlMapper xmlMapper = new XmlMapper();
         CampaignDto campaignDto = xmlMapper.readValue(file, CampaignDto.class);
         List<Visibility> visibilities = campaignDto.getVisibilities();
-        List<Visibility> newVisibilities = visibilities.stream().map(v -> new Visibility(v)).collect(Collectors.toList());
+        List<Visibility> newVisibilities = visibilities.stream().map(v -> new Visibility(v))
+                .collect(Collectors.toList());
         campaignDto.setVisibilities(newVisibilities);
         return campaignDto;
     }
@@ -59,7 +60,7 @@ public class PearlExtractEntities {
         File file = pearlTransformService.getPearlAssignement(fods);
         XmlMapper xmlMapper = new XmlMapper();
         Assignements assignementList = xmlMapper.readValue(file, Assignements.class);
-        return assignementList.getAssignements()!=null ? assignementList.getAssignements() : new ArrayList<>();
+        return assignementList.getAssignements() != null ? assignementList.getAssignements() : new ArrayList<>();
     }
 
 }

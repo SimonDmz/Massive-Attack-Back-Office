@@ -4,17 +4,12 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import fr.insee.sabianedata.ws.utils.DateParser;
 
 @JacksonXmlRootElement(localName = "Visibility")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Visibility {
     // peut-être changer les date en type "long" au lieu de "String"
-
-
-
 
     @JacksonXmlProperty(localName = "OrganisationalUnit")
     private String organizationalUnit;
@@ -86,24 +81,36 @@ public class Visibility {
         this.endDate = endDate;
     }
 
-    private Long dateStringToDateLong(String date){
-        String pattern = "dd/MM/yyyy HH:mm:ss";
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
-        LocalDateTime localDateTime = LocalDateTime.from(formatter.parse(date));
-        Timestamp timestamp = Timestamp.valueOf(localDateTime);
-        return timestamp.getTime();
-    }
-
-    public Visibility(Visibility visibility){
+    public Visibility(Visibility visibility) throws IllegalArgumentException {
         this.organizationalUnit = visibility.getOrganizationalUnit();
-        this.collectionStartDate = dateStringToDateLong(visibility.getCollectionStartDateString());
-        this.collectionEndDate = dateStringToDateLong(visibility.getCollectionEndDateString());
-        this.identificationPhaseStartDate = dateStringToDateLong(visibility.getIdentificationPhaseStartDateString());
-        this.interviewerStartDate = dateStringToDateLong(visibility.getInterviewerStartDateString());
-        this.managementStartDate = dateStringToDateLong(visibility.getManagementStartDateString());
-        this.endDate = dateStringToDateLong(visibility.getEndDateString());
+        this.collectionStartDate = DateParser.fixedDateParse(visibility.getCollectionStartDateString());
+        this.collectionEndDate = DateParser.fixedDateParse(visibility.getCollectionEndDateString());
+        this.identificationPhaseStartDate = DateParser
+                .fixedDateParse(visibility.getIdentificationPhaseStartDateString());
+        this.interviewerStartDate = DateParser.fixedDateParse(visibility.getInterviewerStartDateString());
+        this.managementStartDate = DateParser.fixedDateParse(visibility.getManagementStartDateString());
+        this.endDate = DateParser.fixedDateParse(visibility.getEndDateString());
+        this.collectionStartDateString = visibility.getCollectionStartDateString();
+        this.collectionEndDateString = visibility.getCollectionEndDateString();
+        this.identificationPhaseStartDateString = visibility.getIdentificationPhaseStartDateString();
+        this.interviewerStartDateString = visibility.getInterviewerStartDateString();
+        this.managementStartDateString = visibility.getManagementStartDateString();
+        this.endDateString = visibility.getEndDateString();
     }
 
+    public Visibility(Visibility visibility, Long referenceDate) throws IllegalArgumentException {
+        this.organizationalUnit = visibility.getOrganizationalUnit();
+        this.collectionStartDate = DateParser.relativeDateParse(visibility.getCollectionStartDateString(),
+                referenceDate);
+        this.collectionEndDate = DateParser.relativeDateParse(visibility.getCollectionEndDateString(), referenceDate);
+        this.identificationPhaseStartDate = DateParser
+                .relativeDateParse(visibility.getIdentificationPhaseStartDateString(), referenceDate);
+        this.interviewerStartDate = DateParser.relativeDateParse(visibility.getInterviewerStartDateString(),
+                referenceDate);
+        this.managementStartDate = DateParser.relativeDateParse(visibility.getManagementStartDateString(),
+                referenceDate);
+        this.endDate = DateParser.relativeDateParse(visibility.getEndDateString(), referenceDate);
+    }
 
     public Visibility() {
     }

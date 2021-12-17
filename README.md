@@ -1,22 +1,19 @@
 ![Build](https://github.com/InseeFrLab/Sabiane-Data/actions/workflows/release.yml/badge.svg)
 
-# Sabiane-Data
+# Massive-Attack Back-Office
 API for the management of questionnaires and organizational data for Computer-Assisted Personal Interviewing (CAPI) Data Collection 
 REST API for communication with Queen-Back-Office and Pearl-Jam-Bak-Office.
-
-## Status
-
-PoC: experimentation to refactor a batch approach for Sabiane data management
+Back-Office API for Massive-Attack-Front-Office
 
 ## Quick start :
 
 ### With docker :
 
-- `docker run -p 8080:8080 -t inseefrlab/sabiane-data`
+- `docker run -p 8080:8080 -t inseefrlab/massive-attack-back-office`
 
 To override environments variables you can do :
 
-- `docker run -p 80:80 -e FR_INSEE.SABIANEDATA.API.HOST=http://override.value.com -t inseefr/queen`
+- `docker run -p 80:80 -e FR_INSEE.SABIANEDATA.API.HOST=http://override.value.com -t inseefrlab/massive-attack-back-office`
 
 ### With Maven - Requirements
 For building and running the application you need:
@@ -37,7 +34,6 @@ mvn spring-boot:run
 
 ## Application Accesses locally
 To access to swagger-ui, use this url : [http://localhost:8080/api/swagger-ui.html](http://localhost:8080/api/swagger-ui.html)  
-To access to h2 console, use this url : [http://localhost:8080/api/h2-console](http://localhost:8080/api/h2-console)  
  
 ## Deploy application on Tomcat server
 ### 1. Package the application
@@ -57,7 +53,7 @@ Before to startup the tomcat server, some configurations are needed :
  
 
 #### External Properties file
-Create sabianedata.properties near war file and complete the following properties:  
+Create sabdatab.properties near war file and complete the following properties:  
 ```shell  
 #Profile configuration
 

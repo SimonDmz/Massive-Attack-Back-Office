@@ -1,9 +1,10 @@
 package fr.insee.sabianedata.ws.model.queen;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import fr.insee.sabianedata.ws.utils.JsonFileToJsonNode;
-
 import java.io.File;
+
+import com.fasterxml.jackson.databind.JsonNode;
+
+import fr.insee.sabianedata.ws.utils.JsonFileToJsonNode;
 
 public class SurveyUnitDto extends SurveyUnit {
 
@@ -15,17 +16,41 @@ public class SurveyUnitDto extends SurveyUnit {
 
     public SurveyUnitDto(SurveyUnit surveyUnit, String folder) {
         super(surveyUnit.getId(), surveyUnit.getQuestionnaireId(), surveyUnit.getStateData());
-        String finalFolder = folder + "/" + FOLDER;
-        File dataFile = new File(finalFolder + "/" + surveyUnit.getDataFile());
-        File commentFile = new File(finalFolder + "/" + surveyUnit.getCommentFile());
-        File personalizationFile = new File(finalFolder + "/" + surveyUnit.getPersonalizationFile());
-        this.data = JsonFileToJsonNode.getJsonNodeFromFile(dataFile);
+        String finalFolder = folder + File.separator + FOLDER;
+        File dtodataFile = new File(finalFolder + File.separator + surveyUnit.getDataFile());
+        File commentFile = new File(finalFolder + File.separator + surveyUnit.getCommentFile());
+        File personalizationFile = new File(finalFolder + File.separator + surveyUnit.getPersonalizationFile());
+        this.data = JsonFileToJsonNode.getJsonNodeFromFile(dtodataFile);
         this.comment = JsonFileToJsonNode.getJsonNodeFromFile(commentFile);
         this.personalization = JsonFileToJsonNode.getJsonNodeFromFile(personalizationFile);
     }
 
     public SurveyUnitDto(SurveyUnit surveyUnit) {
-        super(surveyUnit.getId(), surveyUnit.getQuestionnaireId(), surveyUnit.getStateData());
+        super(surveyUnit.getId(), surveyUnit.getQuestionnaireId(), surveyUnit.getStateData(), surveyUnit.getDataFile(),
+                surveyUnit.getCommentFile(), surveyUnit.getPersonalizationFile());
+    }
+
+    public SurveyUnitDto(SurveyUnitDto suDto, SurveyUnit su) {
+        super(su);
+        this.data = suDto.getData();
+        this.comment = suDto.getComment();
+        this.personalization = suDto.getPersonalization();
+    }
+
+    public void extractJsonFromFiles(String folder) {
+        String finalFolder = folder + File.separator + FOLDER;
+        File dtodataFile = new File(finalFolder + File.separator + getDataFile());
+        File commentFile = new File(finalFolder + File.separator + getCommentFile());
+        File personalizationFile = new File(finalFolder + File.separator + getPersonalizationFile());
+        setData(JsonFileToJsonNode.getJsonNodeFromFile(dtodataFile));
+        setComment(JsonFileToJsonNode.getJsonNodeFromFile(commentFile));
+        setPersonalization(JsonFileToJsonNode.getJsonNodeFromFile(personalizationFile));
+
+        // to prevent jsonification to API calls
+        setDataFile(null);
+        setCommentFile(null);
+        setPersonalizationFile(null);
+
     }
 
     public JsonNode getData() {
@@ -51,6 +76,5 @@ public class SurveyUnitDto extends SurveyUnit {
     public void setPersonalization(JsonNode personalization) {
         this.personalization = personalization;
     }
-
 
 }

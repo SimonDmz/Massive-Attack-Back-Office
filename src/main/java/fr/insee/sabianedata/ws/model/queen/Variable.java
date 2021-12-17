@@ -1,16 +1,15 @@
 package fr.insee.sabianedata.ws.model.queen;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 @JacksonXmlRootElement(localName = "Variable")
 public class Variable {
 
-    @JacksonXmlProperty(localName="Name")
+    @JacksonXmlProperty(localName = "Name")
     private String name;
 
-    @JacksonXmlProperty(localName="Value")
+    @JacksonXmlProperty(localName = "Value")
     private String value;
 
     public String getName() {
