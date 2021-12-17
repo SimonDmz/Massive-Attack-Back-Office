@@ -1,19 +1,18 @@
 package fr.insee.sabianedata.ws.model.queen;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 @JacksonXmlRootElement(localName = "StateData")
 public class StateData {
 
-    @JacksonXmlProperty(localName="State")
+    @JacksonXmlProperty(localName = "State")
     private String state;
 
-    @JacksonXmlProperty(localName="Date")
+    @JacksonXmlProperty(localName = "Date")
     private Long date;
 
-    @JacksonXmlProperty(localName="CurrentPage")
+    @JacksonXmlProperty(localName = "CurrentPage")
     private String currentPage;
 
     public String getState() {

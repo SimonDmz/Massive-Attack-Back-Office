@@ -1,6 +1,5 @@
 package fr.insee.sabianedata.ws.model.pearl;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
@@ -9,13 +8,18 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 @JacksonXmlRootElement(localName = "Assignement")
 public class Assignement {
 
-    @JacksonXmlProperty(localName="SurveyUnitId")
+    @JacksonXmlProperty(localName = "SurveyUnitId")
     private String surveyUnitId;
 
-    @JacksonXmlProperty(localName="InterviewerId")
+    @JacksonXmlProperty(localName = "InterviewerId")
     private String interviewerId;
 
     public Assignement() {
+    }
+
+    public Assignement(String surveyUnitId, String interviewerId) {
+        this.surveyUnitId = surveyUnitId;
+        this.interviewerId = interviewerId;
     }
 
     public String getSurveyUnitId() {
@@ -34,7 +38,7 @@ public class Assignement {
         this.interviewerId = interviewerId;
     }
 
-    public String toString(){
+    public String toString() {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             return objectMapper.writeValueAsString(this);

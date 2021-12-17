@@ -18,18 +18,21 @@ jobs:
           java-version: 11
       - name: Build with Maven
         run: mvn install --file pom.xml
+      - name: Upload war
+        uses: actions/upload-artifact@v2
+        with:
+          name: war
+          path: target/*.war
       - name: Get Glow Root
         run: |
           curl -L https://github.com/glowroot/glowroot/releases/download/v0.13.6/glowroot-0.13.6-dist.zip -o glowroot.zip
           unzip glowroot.zip
           rm -rf glowroot.zip
-      - name: Upload artifacts
+      - name: Upload glowroot
         uses: actions/upload-artifact@v2
         with:
-          name: artifacts
-          path: |
-            target/sabianedata.jar
-            glowroot
+          name: glowroot
+          path: glowroot
   release:
     needs: build
     runs-on: ubuntu-latest
@@ -50,24 +53,6 @@ jobs:
           release_name: Release ${{steps.version.outputs.prop}}
           draft: false
           prerelease: false
-      - uses: actions/checkout@v2
-      - name: Download build
-        id: download
-        uses: actions/download-artifact@v2
-        with:
-          name: artifacts
-          path: ./
-      - run: ls .
-      - name: Upload Release Asset
-        id: upload-release-asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.release_snapshot.outputs.upload_url }}
-          asset_path: target/sabianedata.jar
-          asset_name: sabianedata.jar
-          asset_content_type: application/java-archive
   docker:
     needs: build
     runs-on: ubuntu-latest
@@ -77,8 +62,13 @@ jobs:
         id: download
         uses: actions/download-artifact@v2
         with:
-          name: artifacts
-          path: ./
+          name: war
+          path: target/
+      - name: Download glowroot
+        id: downloadGlowroot
+        uses: actions/download-artifact@v2
+        with:
+          name: glowroot
       - name: Get current version
         id: version
         run: echo "::set-output name=prop::$(mvn -f pom.xml help:evaluate -Dexpression=project.version -q -DforceStdout)"
@@ -86,7 +76,7 @@ jobs:
       - name: Publish to Registry
         uses: elgohr/Publish-Docker-Github-Action@master
         with:
-          name: inseefrlab/sabiane-data
+          name: inseefrlab/massive-attack-back-office
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
           tags: ${{steps.version.outputs.prop}}

@@ -23,7 +23,7 @@
                 <xsl:variable name="row" select="tools:get-full-row(.)"/>
                 <xsl:if test="normalize-space($row)!=''">
                     <Nomenclature>
-                        <Id><xsl:value-of select="upper-case(tools:getColumn($row, 1))"/></Id>
+                        <Id><xsl:value-of select="tools:getColumn($row, 1)"/></Id>
                         <Label><xsl:value-of select="tools:getColumn($row, 2)"/></Label>                      
                         <FileName><xsl:value-of select="tools:getColumn($row,3)"/></FileName>
                     </Nomenclature>

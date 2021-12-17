@@ -1,23 +1,21 @@
 package fr.insee.sabianedata.ws.model.pearl;
 
-
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @JacksonXmlRootElement(localName = "Campaign")
 public class CampaignDto {
 
-    @JacksonXmlProperty(localName="Campaign")
+    @JacksonXmlProperty(localName = "Campaign")
     private String campaign;
 
-    @JacksonXmlProperty(localName="CampaignLabel")
+    @JacksonXmlProperty(localName = "CampaignLabel")
     private String campaignLabel;
 
-    @JacksonXmlElementWrapper(localName="Visibilities")
+    @JacksonXmlElementWrapper(localName = "Visibilities")
     private List<Visibility> visibilities;
 
     public CampaignDto() {
@@ -46,6 +44,5 @@ public class CampaignDto {
     public void setVisibilities(List<Visibility> visibilities) {
         this.visibilities = visibilities;
     }
-
 
 }

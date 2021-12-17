@@ -1,6 +1,7 @@
 .classpath
 .project
 .idea
+.factorypath
 *.iml
 .tern-project
 .settings/
