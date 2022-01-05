@@ -35,7 +35,7 @@
                         <RequiredNomenclatures>
                             <xsl:for-each select="tokenize(tools:getColumn($row, 3), ',')">
                                 <Nomenclature>
-                                    <xsl:value-of select="upper-case(.)"/>
+                                    <xsl:value-of select="current()"/>
                                 </Nomenclature>
                             </xsl:for-each>
                         </RequiredNomenclatures>                        
