@@ -45,6 +45,7 @@ public class QueenApiService {
     public ResponseEntity<?> postUeToApi(HttpServletRequest request, SurveyUnitDto surveyUnitDto,
             CampaignDto campaignDto, Plateform plateform) throws JsonProcessingException {
         LOGGER.info("Create SurveyUnit " + surveyUnitDto.getId());
+        LOGGER.debug(surveyUnitDto.toString());
         String idCampaign = campaignDto.getId();
         final String apiUri = queenProperties.getHostFromEnum(plateform) + "/api/campaign/" + idCampaign
                 + "/survey-unit";

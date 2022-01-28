@@ -77,4 +77,9 @@ public class SurveyUnitDto extends SurveyUnit {
         this.personalization = personalization;
     }
 
+    public String toString() {
+        return this.getId() + "_" + this.getQuestionnaireId() + "_" + data.asText();
+
+    }
+
 }
