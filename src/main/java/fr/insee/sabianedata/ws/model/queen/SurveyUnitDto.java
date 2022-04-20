@@ -1,6 +1,7 @@
 package fr.insee.sabianedata.ws.model.queen;
 
 import java.io.File;
+import java.util.Date;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -51,6 +52,14 @@ public class SurveyUnitDto extends SurveyUnit {
         setCommentFile(null);
         setPersonalizationFile(null);
 
+    }
+
+    public void generateStateData() {
+        StateData stateDataToInject = new StateData();
+        stateDataToInject.setCurrentPage("1");
+        stateDataToInject.setDate(new Date().getTime());
+        stateDataToInject.setState("INIT");
+        this.setStateData(stateDataToInject);
     }
 
     public JsonNode getData() {
