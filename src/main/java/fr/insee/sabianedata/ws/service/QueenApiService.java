@@ -60,6 +60,7 @@ public class QueenApiService {
         final String apiUri = queenProperties.getHostFromEnum(plateform) + "/api/nomenclature";
         HttpHeaders httpHeaders = createSimpleHeadersAuth(request);
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+        LOGGER.info("Calling {}", apiUri);
         return restTemplate.exchange(apiUri, HttpMethod.POST, new HttpEntity<>(nomenclatureDto, httpHeaders),
                 String.class);
     }
