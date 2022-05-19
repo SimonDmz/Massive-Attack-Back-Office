@@ -161,7 +161,7 @@ public class PearlApiService {
 
     public ResponseEntity<String> deleteCampaign(HttpServletRequest request, Plateform plateform, String id) {
         LOGGER.info("pearl service : delete");
-        final String apiUri = pearlProperties.getHostFromEnum(plateform) + "/api/campaign/" + id;
+        final String apiUri = pearlProperties.getHostFromEnum(plateform) + "/api/campaign/" + id + "?force=true";
         HttpHeaders httpHeaders = createSimpleHeadersAuth(request);
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         return restTemplate.exchange(apiUri, HttpMethod.DELETE, new HttpEntity<>(id, httpHeaders), String.class);
