@@ -299,7 +299,8 @@ public class MassiveAttackService {
 
                 // contactAttempts
                 List<ContactAttemptDto> newCAs = Optional.ofNullable(initialSurveyUnit.getContactAttempts())
-                                .orElse(new ArrayList<>()).stream().map(ca -> new ContactAttemptDto(ca, referenceDate))
+                                .orElse(new ArrayList<>()).stream()
+                                .map(ca -> new ContactAttemptDto(ca, referenceDate, ca.getMedium()))
                                 .collect(Collectors.toList());
                 ArrayList<ContactAttemptDto> newContactAttempts = new ArrayList<>(newCAs);
                 newSu.setContactAttempts(newContactAttempts);

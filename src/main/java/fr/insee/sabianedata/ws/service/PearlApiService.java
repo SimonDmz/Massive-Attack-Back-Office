@@ -29,7 +29,6 @@ import fr.insee.sabianedata.ws.model.massiveAttack.PearlUser;
 import fr.insee.sabianedata.ws.model.pearl.Assignement;
 import fr.insee.sabianedata.ws.model.pearl.Campaign;
 import fr.insee.sabianedata.ws.model.pearl.CampaignDto;
-import fr.insee.sabianedata.ws.model.pearl.GeoLocationDto;
 import fr.insee.sabianedata.ws.model.pearl.InterviewerDto;
 import fr.insee.sabianedata.ws.model.pearl.OrganisationUnitContextDto;
 import fr.insee.sabianedata.ws.model.pearl.SurveyUnitDto;
@@ -53,16 +52,6 @@ public class PearlApiService {
         HttpHeaders httpHeaders = createSimpleHeadersAuth(request);
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         return restTemplate.exchange(apiUri, HttpMethod.POST, new HttpEntity<>(campaignDto, httpHeaders), String.class);
-    }
-
-    public ResponseEntity<?> postGeoLocationsToApi(HttpServletRequest request, List<GeoLocationDto> geoLocations,
-            Plateform plateform) throws JsonProcessingException {
-        LOGGER.info("Create GeoLocations ");
-        final String apiUri = pearlProperties.getHostFromEnum(plateform) + "/api/geographical-locations";
-        HttpHeaders httpHeaders = createSimpleHeadersAuth(request);
-        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-        return restTemplate.exchange(apiUri, HttpMethod.POST, new HttpEntity<>(geoLocations, httpHeaders),
-                String.class);
     }
 
     public ResponseEntity<?> postUesToApi(HttpServletRequest request, List<SurveyUnitDto> surveyUnits,
