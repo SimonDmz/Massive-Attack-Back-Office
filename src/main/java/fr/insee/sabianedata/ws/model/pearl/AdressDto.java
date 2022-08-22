@@ -29,7 +29,7 @@ public class AdressDto {
     @JacksonXmlProperty(localName = "L7")
     private String L7;
     @JacksonXmlProperty(localName = "Elevator")
-    private boolean elevator;
+    private Boolean elevator;
     @JacksonXmlProperty(localName = "Building")
     private String building;
     @JacksonXmlProperty(localName = "Floor")
@@ -39,7 +39,7 @@ public class AdressDto {
     @JacksonXmlProperty(localName = "Staircase")
     private String staircase;
     @JacksonXmlProperty(localName = "CityPriorityDistrict")
-    private boolean cityPriorityDistrict;
+    private Boolean cityPriorityDistrict;
 
     public String getL1() {
         return L1;
