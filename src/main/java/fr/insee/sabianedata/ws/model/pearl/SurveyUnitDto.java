@@ -38,6 +38,7 @@ public class SurveyUnitDto {
     private ArrayList<ContactAttemptDto> contactAttempts = new ArrayList<>();
     @JacksonXmlProperty(localName = "States")
     private ArrayList<SurveyUnitStateDto> states = new ArrayList<>();
+    @JacksonXmlProperty(localName = "SurveyUnitIdentification")
     @XmlElement(required = false)
     private Identification identification;
 
