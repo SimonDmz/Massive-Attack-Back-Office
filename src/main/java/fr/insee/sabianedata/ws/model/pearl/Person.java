@@ -9,20 +9,22 @@ import java.util.ArrayList;
 @JacksonXmlRootElement(localName = "Person")
 public class Person {
 
-    @JacksonXmlProperty(localName="FirstName")
+    @JacksonXmlProperty(localName = "FirstName")
     private String firstName;
-    @JacksonXmlProperty(localName="LastName")
+    @JacksonXmlProperty(localName = "LastName")
     private String lastName;
-    @JacksonXmlProperty(localName="Title")
+    @JacksonXmlProperty(localName = "Title")
     private String title;
-    @JacksonXmlProperty(localName="Email")
+    @JacksonXmlProperty(localName = "Email")
     private String email;
-    @JacksonXmlProperty(localName="Privileged")
+    @JacksonXmlProperty(localName = "Privileged")
     private boolean privileged;
-    @JacksonXmlProperty(localName="FavoriteEmail")
+    @JacksonXmlProperty(localName = "FavoriteEmail")
     private boolean favoriteEmail;
+    @JacksonXmlProperty(localName = "BirthDate")
+    private Long birthdate;
 
-    @JacksonXmlElementWrapper(localName="PhoneNumbers")
+    @JacksonXmlElementWrapper(localName = "PhoneNumbers")
     private ArrayList<PhoneNumber> phoneNumbers;
 
     public String getFirstName() {
@@ -79,6 +81,14 @@ public class Person {
 
     public void setPhoneNumbers(ArrayList<PhoneNumber> phoneNumbers) {
         this.phoneNumbers = phoneNumbers;
+    }
+
+    public Long getBirthdate() {
+        return this.birthdate;
+    }
+
+    public void setBirthdate(Long birthdate) {
+        this.birthdate = birthdate;
     }
 
     public Person() {

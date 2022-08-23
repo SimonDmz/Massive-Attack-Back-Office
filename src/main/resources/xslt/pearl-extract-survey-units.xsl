@@ -65,9 +65,10 @@
                                     <Email><xsl:value-of select="tools:getColumn($personRow,5)"/></Email>
                                     <Privileged><xsl:value-of select="tools:getColumn($personRow,6)"/></Privileged>
                                     <FavoriteEmail><xsl:value-of select="tools:getColumn($personRow,7)"/></FavoriteEmail>
+                                    <BirthDate><xsl:value-of select="tools:getColumn($personRow,8)"/></BirthDate>
                                     <PhoneNumbers>
-                                        <xsl:for-each select="$personRow/table:table-cell[position()>=8 and ((position()-8) mod 3 = 0)]">
-                                            <xsl:variable name="realPosition" select="8 + (position()-1)*3"/>
+                                        <xsl:for-each select="$personRow/table:table-cell[position()>=9 and ((position()-9) mod 3 = 0)]">
+                                            <xsl:variable name="realPosition" select="9 + (position()-1)*3"/>
                                             <xsl:if test="normalize-space(.)!=''">
                                                 <PhoneNumber>
                                                     <Source><xsl:value-of select="tools:getColumn($personRow,$realPosition)"/></Source>
