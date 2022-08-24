@@ -66,7 +66,7 @@ public class MassiveAttackController {
             @RequestParam(value = "dateReference") Long dateReference,
             @RequestParam(value = "interviewers", defaultValue = "") List<String> interviewers,
             @RequestParam(value = "plateform") Plateform plateform) {
-        LOGGER.warn("USER : " +  utilsService.getRequesterId(request) + " | create scenario " + campaignId + " -> "
+        LOGGER.warn("USER : " + utilsService.getRequesterId(request) + " | create scenario " + campaignId + " -> "
                 + campaignLabel);
         ResponseModel result = massiveAttackService.generateTrainingScenario(campaignId, campaignLabel, request,
                 dateReference, plateform, interviewers);
@@ -104,4 +104,15 @@ public class MassiveAttackController {
         return new ResponseEntity<>(pearlCampaigns, HttpStatus.OK);
     }
 
+    @Operation(summary = "Return all OrganisationalUnits")
+    @GetMapping(value = "organisation-units", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<OrganisationUnitDto>> getAllOrganisationalUnits(HttpServletRequest request,
+            @RequestParam(value = "plateform") Plateform plateform) {
+        LOGGER.info("USER : " + utilsService.getRequesterId(request) + " | get organization unit ");
+        List<OrganisationUnitDto> ous = pearlApiService.getAllOrganizationUnits(request, plateform);
+        if (ous.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok().body(ous);
+    }
 }

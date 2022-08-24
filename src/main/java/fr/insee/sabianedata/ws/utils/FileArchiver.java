@@ -11,17 +11,11 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import fr.insee.sabianedata.ws.Constants;
-import fr.insee.sabianedata.ws.model.queen.Nomenclature;
-import fr.insee.sabianedata.ws.model.queen.Nomenclatures;
-import fr.insee.sabianedata.ws.model.queen.QuestionnaireModel;
 import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 public class FileArchiver {
 	
-	private static final Logger LOGGER = LoggerFactory.getLogger(FileArchiver.class);
 	/**
      * Add a file into Zip file.
      *

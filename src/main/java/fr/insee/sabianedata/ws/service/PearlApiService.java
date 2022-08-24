@@ -165,4 +165,20 @@ public class PearlApiService {
 
     }
 
+    public List<OrganisationUnitDto> getAllOrganizationUnits(HttpServletRequest request, Plateform plateform) {
+        final String apiUri = pearlProperties.getHostFromEnum(plateform) + "/api/organization-units";
+        HttpHeaders httpHeaders = createSimpleHeadersAuth(request);
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+        LOGGER.info("Trying to get all organisation units");
+        ResponseEntity<OrganisationUnitDto[]> campaignsResponse = restTemplate.exchange(apiUri, HttpMethod.GET,
+                new HttpEntity<>(httpHeaders), OrganisationUnitDto[].class);
+        if (campaignsResponse.getStatusCode() == HttpStatus.OK) {
+            LOGGER.info("API call for all organisation units is OK");
+            return Arrays.asList(campaignsResponse.getBody());
+        } else {
+            LOGGER.warn("API call not OK");
+        }
+        return new ArrayList<>();
+    }
+
 }
