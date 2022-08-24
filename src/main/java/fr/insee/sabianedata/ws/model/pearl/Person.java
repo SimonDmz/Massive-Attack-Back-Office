@@ -22,6 +22,7 @@ public class Person {
     @JacksonXmlProperty(localName = "FavoriteEmail")
     private boolean favoriteEmail;
     @JacksonXmlProperty(localName = "BirthDate")
+    private String birthdateString;
     private Long birthdate;
 
     @JacksonXmlElementWrapper(localName = "PhoneNumbers")
@@ -89,6 +90,15 @@ public class Person {
 
     public void setBirthdate(Long birthdate) {
         this.birthdate = birthdate;
+    }
+
+    public String getBirthdateString() {
+        return this.birthdateString;
+    }
+
+    public void setBirthdateString(String birthdateString) {
+        this.birthdateString = birthdateString;
+        this.birthdate = Long.parseLong(birthdateString);
     }
 
     public Person() {
