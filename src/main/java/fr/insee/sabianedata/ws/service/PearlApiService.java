@@ -132,12 +132,14 @@ public class PearlApiService {
         return null;
     }
 
-    public List<Campaign> getCampaigns(HttpServletRequest request, Plateform plateform) {
+    public List<Campaign> getCampaigns(HttpServletRequest request, Plateform plateform, boolean admin) {
         final String apiUri = pearlProperties.getHostFromEnum(plateform) + "/api/campaigns";
+        final String adminApiUri = pearlProperties.getHostFromEnum(plateform) + "/api/admin/campaigns";
         HttpHeaders httpHeaders = createSimpleHeadersAuth(request);
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         LOGGER.info("Trying to get campaigns list");
-        ResponseEntity<Campaign[]> campaignsResponse = restTemplate.exchange(apiUri, HttpMethod.GET,
+        ResponseEntity<Campaign[]> campaignsResponse = restTemplate.exchange(admin ? adminApiUri : apiUri,
+                HttpMethod.GET,
                 new HttpEntity<>(httpHeaders), Campaign[].class);
         if (campaignsResponse.getStatusCode() == HttpStatus.OK) {
             LOGGER.info("API call for campaigns is OK");
