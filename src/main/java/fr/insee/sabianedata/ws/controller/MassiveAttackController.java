@@ -63,12 +63,14 @@ public class MassiveAttackController {
     public ResponseEntity<ResponseModel> generateTrainingCourse(HttpServletRequest request,
             @RequestParam(value = "campaignId") String campaignId,
             @RequestParam(value = "campaignLabel") String campaignLabel,
+            @RequestParam(value = "organisationUnitId") String organisationUnitId,
             @RequestParam(value = "dateReference") Long dateReference,
             @RequestParam(value = "interviewers", defaultValue = "") List<String> interviewers,
             @RequestParam(value = "plateform") Plateform plateform) {
-        LOGGER.warn("USER : " + utilsService.getRequesterId(request) + " | create scenario " + campaignId + " -> "
+        LOGGER.info("USER : " + utilsService.getRequesterId(request) + " | create scenario " + campaignId + " -> "
                 + campaignLabel);
-        ResponseModel result = massiveAttackService.generateTrainingScenario(campaignId, campaignLabel, request,
+        ResponseModel result = massiveAttackService.generateTrainingScenario(campaignId, campaignLabel,
+                organisationUnitId, request,
                 dateReference, plateform, interviewers);
         return result.isSuccess() ? ResponseEntity.ok().body(result) : ResponseEntity.badRequest().body(result);
     }
@@ -97,8 +99,9 @@ public class MassiveAttackController {
     @Operation(summary = "Get list of training courses")
     @GetMapping(path = "/training-courses")
     public ResponseEntity<List<Campaign>> getTrainingSessions(HttpServletRequest request,
-            @RequestParam(value = "plateform") Plateform plateform) {
-        List<Campaign> pearlCampaigns = pearlApiService.getCampaigns(request, plateform);
+            @RequestParam(value = "plateform") Plateform plateform,
+            @RequestParam(value = "admin", defaultValue = "false") boolean admin) {
+        List<Campaign> pearlCampaigns = pearlApiService.getCampaigns(request, plateform, admin);
 
         LOGGER.info("USER : " + utilsService.getRequesterId(request) + " | get campaigns ");
         return new ResponseEntity<>(pearlCampaigns, HttpStatus.OK);
