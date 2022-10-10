@@ -42,6 +42,7 @@ import fr.insee.sabianedata.ws.model.pearl.Assignement;
 import fr.insee.sabianedata.ws.model.pearl.Campaign;
 import fr.insee.sabianedata.ws.model.pearl.ContactAttemptDto;
 import fr.insee.sabianedata.ws.model.pearl.ContactOutcomeDto;
+import fr.insee.sabianedata.ws.model.pearl.Identification;
 import fr.insee.sabianedata.ws.model.pearl.InterviewerDto;
 import fr.insee.sabianedata.ws.model.pearl.SurveyUnitStateDto;
 import fr.insee.sabianedata.ws.model.pearl.UserDto;
@@ -376,6 +377,13 @@ public class MassiveAttackService {
                         LOGGER.error(e.getMessage());
                 }
                 LOGGER.info("Trying to post " + tc.getPearlSurveyUnits().size() + " pearl surveyUnits");
+                tc.getPearlSurveyUnits().stream().parallel().forEach(su -> {
+                        Identification ident = su.getIdentification();
+                        LOGGER.info(su.getId() + " - " +
+                                        ident == null ? "ident is null"
+                                                        : (ident.getIdentification() + ident.getAccess()
+                                                                        + ident.getSituation()));
+                });
                 try {
                         pearlApiService.postUesToApi(request, tc.getPearlSurveyUnits(), plateform);
                         pearlSurveyUnitSuccess = true;
