@@ -17,4 +17,47 @@ public class Identification {
     @JacksonXmlProperty(localName = "Occupant")
     private String occupant;
 
+    public Identification() {
+    }
+
+    public String getIdentification() {
+        return this.identification;
+    }
+
+    public void setIdentification(String identification) {
+        this.identification = identification;
+    }
+
+    public String getAccess() {
+        return this.access;
+    }
+
+    public void setAccess(String access) {
+        this.access = access;
+    }
+
+    public String getSituation() {
+        return this.situation;
+    }
+
+    public void setSituation(String situation) {
+        this.situation = situation;
+    }
+
+    public String getCategory() {
+        return this.category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+    public String getOccupant() {
+        return this.occupant;
+    }
+
+    public void setOccupant(String occupant) {
+        this.occupant = occupant;
+    }
+
 }

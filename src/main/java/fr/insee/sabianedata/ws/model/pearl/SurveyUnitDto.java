@@ -1,6 +1,8 @@
 package fr.insee.sabianedata.ws.model.pearl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.xml.bind.annotation.XmlElement;
 
@@ -29,6 +31,7 @@ public class SurveyUnitDto {
     private SampleIdentifiersDto sampleIdentifiers;
     @JacksonXmlProperty(localName = "Comment")
     private String comment;
+    private List<CommentDto> comments;
     @JacksonXmlProperty(localName = "Move")
     private Boolean move;
     @JacksonXmlProperty(localName = "ContactOutcome")
@@ -104,6 +107,16 @@ public class SurveyUnitDto {
 
     public void setComment(String comment) {
         this.comment = comment;
+        CommentDto interviewerComment = new CommentDto(CommentType.INTERVIEWER, comment);
+        this.comments = Arrays.asList(interviewerComment);
+    }
+
+    public List<CommentDto> getComments() {
+        return this.comments;
+    }
+
+    public void setComments(List<CommentDto> comments) {
+        this.comments = comments;
     }
 
     public ArrayList<ContactAttemptDto> getContactAttempts() {
