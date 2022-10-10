@@ -3,6 +3,8 @@ package fr.insee.sabianedata.ws.model.pearl;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.bind.annotation.XmlElement;
 
@@ -14,6 +16,7 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 @JacksonXmlRootElement(localName = "SurveyUnit")
 public class SurveyUnitDto {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SurveyUnitDto.class);
 
     @JacksonXmlProperty(localName = "Id")
     private String id;
@@ -163,6 +166,10 @@ public class SurveyUnitDto {
     }
 
     public SurveyUnitDto(SurveyUnitDto su) {
+        Identification ident = su.getIdentification();
+        LOGGER.info(su.getId() + " -> " + ident == null ? "ident is null"
+                : (ident.getIdentification() + ident.getAccess() + ident.getSituation()));
+
         this.id = su.getId();
         this.persons = su.getPersons();
         this.address = su.getAddress();
