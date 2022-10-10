@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.xml.bind.annotation.XmlElement;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
@@ -45,6 +46,7 @@ public class SurveyUnitDto {
     @JacksonXmlProperty(localName = "States")
     private ArrayList<SurveyUnitStateDto> states = new ArrayList<>();
     @JacksonXmlProperty(localName = "SurveyUnitIdentification")
+    @JsonProperty(value = "identification")
     @XmlElement(required = false)
     private Identification identification;
 
