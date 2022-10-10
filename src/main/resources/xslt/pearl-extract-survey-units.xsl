@@ -148,14 +148,14 @@
                             </xsl:for-each>
                         </States>
                         <SurveyUnitIdentification>
-                            <xsl:variable name="identificationRow" select="tools:get-identification(tools:getColumn($row,1))"/>
-                            <xsl:if test="normalize-space($identificationRow)!=''">
-                                <Identification><xsl:value-of select="tools:getColumn($identificationRow,2)"/></Identification>
-                                <Access><xsl:value-of select="tools:getColumn($identificationRow,3)"/></Access>
-                                <Situation><xsl:value-of select="tools:getColumn($identificationRow,4)"/></Situation>
-                                <Category><xsl:value-of select="tools:getColumn($identificationRow,5)"/></Category>
-                                <Occupant><xsl:value-of select="tools:getColumn($identificationRow,6)"/></Occupant>
-                            </xsl:if>
+                            <xsl:for-each select="tools:get-identification(tools:getColumn($row,1))">
+                                <xsl:variable name="identificationRow" select="tools:get-full-row(.)"/>
+                                    <Identification><xsl:value-of select="tools:getColumn($identificationRow,2)"/></Identification>
+                                    <Access><xsl:value-of select="tools:getColumn($identificationRow,3)"/></Access>
+                                    <Situation><xsl:value-of select="tools:getColumn($identificationRow,4)"/></Situation>
+                                    <Category><xsl:value-of select="tools:getColumn($identificationRow,5)"/></Category>
+                                    <Occupant><xsl:value-of select="tools:getColumn($identificationRow,6)"/></Occupant>
+                            </xsl:for-each>
                         </SurveyUnitIdentification>
                     </SurveyUnit>
                 </xsl:if>

@@ -171,6 +171,7 @@ public class SurveyUnitDto {
         this.campaign = su.getCampaign();
         this.sampleIdentifiers = su.getSampleIdentifiers();
         this.comment = su.getComment();
+        this.comments = su.getComments();
         this.contactOutcome = su.getContactOutcome();
         this.contactAttempts = su.getContactAttempts();
         this.states = su.getStates();
