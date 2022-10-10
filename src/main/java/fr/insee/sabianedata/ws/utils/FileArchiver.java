@@ -13,20 +13,19 @@ import java.util.zip.ZipOutputStream;
 import fr.insee.sabianedata.ws.Constants;
 import org.apache.commons.io.IOUtils;
 
-
 public class FileArchiver {
-	
+
 	/**
-     * Add a file into Zip file.
-     *
-     * @throws FileNotFoundException
-     * @throws IOException
-     */
-    public static File createZipForExample()
-            throws FileNotFoundException, IOException {
-    	
-    	File outputZip = Files.createTempFile("data-", ".zip").toFile();    	
-    	FileOutputStream fileOutputStream = new FileOutputStream(outputZip);
+	 * Add a file into Zip file.
+	 *
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
+	public static File createZipForExample()
+			throws FileNotFoundException, IOException {
+
+		File outputZip = Files.createTempFile("data-", ".zip").toFile();
+		FileOutputStream fileOutputStream = new FileOutputStream(outputZip);
 		ZipOutputStream zipStream = new ZipOutputStream(fileOutputStream);
 
 		FileInputStream fileIS = new FileInputStream(Constants.EXAMPLE_QUEEN_CAMPAIGN);
@@ -35,22 +34,23 @@ public class FileArchiver {
 		zipStream.write(IOUtils.toByteArray(fileIS));
 		zipStream.closeEntry();
 		fileIS.close();
-		//zipFile(Constants.EXAMPLE_NOMENCLATURES_FOLDER, "nomenclatures",zipStream);
-		zipFile(Constants.EXAMPLE_QUESTIONNAIRES_FOLDER, "questionnaireModels",zipStream);
-		zipFile(Constants.EXAMPLE_SURVEYUNITS_FOLDER, "surveyUnits",zipStream);
+		// zipFile(Constants.EXAMPLE_NOMENCLATURES_FOLDER, "nomenclatures",zipStream);
+		zipFile(Constants.EXAMPLE_QUESTIONNAIRES_FOLDER, "questionnaireModels", zipStream);
+		zipFile(Constants.EXAMPLE_SURVEYUNITS_FOLDER, "surveyUnits", zipStream);
 
-    	zipStream.close();
+		zipStream.close();
 		fileOutputStream.close();
-    	
-    	return outputZip;
-    }
 
-    public static File zipFilesForCreateQueenCampaign(String folderTemp, List<File> rootFiles) throws FileNotFoundException, IOException{
+		return outputZip;
+	}
+
+	public static File zipFilesForCreateQueenCampaign(String folderTemp, List<File> rootFiles)
+			throws FileNotFoundException, IOException {
 		File outputZip = Files.createTempFile("data-", ".zip").toFile();
 		FileOutputStream fileOutputStream = new FileOutputStream(outputZip);
 		ZipOutputStream zipStream = new ZipOutputStream(fileOutputStream);
 
-		for(File file : rootFiles) {
+		for (File file : rootFiles) {
 			FileInputStream fileIS = new FileInputStream(file);
 			ZipEntry zipEntry = new ZipEntry(file.getName());
 			zipStream.putNextEntry(zipEntry);
@@ -58,10 +58,10 @@ public class FileArchiver {
 			zipStream.closeEntry();
 			fileIS.close();
 		}
-		File nomenclatureFolder = new File(folderTemp+"/nomenclatures");
-		File questionnaireModelsFolder = new File(folderTemp+"/questionnaireModels");
-		zipFile(nomenclatureFolder, "nomenclatures",zipStream);
-		zipFile(questionnaireModelsFolder, "questionnaireModels",zipStream);
+		File nomenclatureFolder = new File(folderTemp + "/nomenclatures");
+		File questionnaireModelsFolder = new File(folderTemp + "/questionnaireModels");
+		zipFile(nomenclatureFolder, "nomenclatures", zipStream);
+		zipFile(questionnaireModelsFolder, "questionnaireModels", zipStream);
 
 		zipStream.close();
 		fileOutputStream.close();
