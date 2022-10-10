@@ -1,5 +1,7 @@
 package fr.insee.sabianedata.ws.model.pearl;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
@@ -32,7 +34,8 @@ public class Identification {
     }
 
     public void setIdentification(String identification) {
-        this.identification = identification;
+        if (StringUtils.isNotBlank(identification))
+            this.identification = identification;
     }
 
     public String getAccess() {
@@ -40,7 +43,8 @@ public class Identification {
     }
 
     public void setAccess(String access) {
-        this.access = access;
+        if (StringUtils.isNotBlank(access))
+            this.access = access;
     }
 
     public String getSituation() {
@@ -48,7 +52,8 @@ public class Identification {
     }
 
     public void setSituation(String situation) {
-        this.situation = situation;
+        if (StringUtils.isNotBlank(situation))
+            this.situation = situation;
     }
 
     public String getCategory() {
@@ -56,7 +61,8 @@ public class Identification {
     }
 
     public void setCategory(String category) {
-        this.category = category;
+        if (StringUtils.isNotBlank(category))
+            this.category = category;
     }
 
     public String getOccupant() {
@@ -64,7 +70,8 @@ public class Identification {
     }
 
     public void setOccupant(String occupant) {
-        this.occupant = occupant;
+        if (StringUtils.isNotBlank(occupant))
+            this.occupant = occupant;
     }
 
 }
